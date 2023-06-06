@@ -1,0 +1,22 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --vyska-menu: 60px;
+    --velikost-pisma-menu: 18px;
+    --bila: #eef4fc;
+    --modra: #395DFC;
+    --ruzova: #FCA2D5;
+    --seda: rgba(84, 84, 84, 0.65);
+    --cerna-pozadi: #181818;
+    --seda-color: rgba(235, 235, 235, 0.64);
+    --bila-soft: #f8f8f8
+}
+body{
+    background: var(--cerna-pozadi);
+    color: var(--seda-color)
+}
+
