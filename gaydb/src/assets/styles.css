@@ -19,4 +19,8 @@ body{
     background: var(--cerna-pozadi);
     color: var(--seda-color)
 }
-
+.nadpis {
+    font-size: 55px;
+    text-align: center;
+    color: var(--bila-soft)
+}

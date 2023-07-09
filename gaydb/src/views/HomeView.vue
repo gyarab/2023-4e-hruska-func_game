@@ -1,3 +1,3 @@
 <template>
-  <h1>This is homepage</h1>
+  <h1 class="nadpis">This is homepage</h1>
 </template>

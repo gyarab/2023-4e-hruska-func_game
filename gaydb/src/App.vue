@@ -62,9 +62,4 @@
     margin-top: 1rem;
   }
 }
-h1 {
-  font-size: 55px;
-  text-align: center;
-  color: var(--bila-soft)
-}
 </style>
