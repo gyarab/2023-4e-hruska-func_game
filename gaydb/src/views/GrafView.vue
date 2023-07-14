@@ -16,9 +16,9 @@ import Chart from "chart.js/auto";
   export default {
     name: "Graf",
     props: {
-      funkce: String,
+      graf: Array,
       barva: String,
-      jmeno: String
+      jmeno: String,
     },
     mounted(){
       Chart.defaults.elements.line.cubicInterpolationMode = 'monotone';
@@ -27,8 +27,8 @@ import Chart from "chart.js/auto";
         type: "line",
         data: {
           datasets: [{
-            label: 'First dataset',
-            data: [319, 17, 241, 21, 376, 446, 11, 60, 40, 221, 315, 278, 56, 366, 34, 245, 402, 75, 379, 367]
+            label: this.jmeno,
+            data: this.data
         }],
         labels: [-500, -400, -300, -200, -100, 0, 100, 200, 300, 400, 500]
         }, 
@@ -43,11 +43,25 @@ import Chart from "chart.js/auto";
       })
     },
     methods: {
-      async calculate_x(x) {
-        console.log(this.funkce)
-        var y = x //based on a x and function it returns the value 
-        return y
+      async calculate_x(func_str) {
+        //#########################
+        //convert_func(func_str)
+        //zadá funkci
+        //předání dál v podobě str
+        //zatím eval
+        //  calculate y(single input(x), předpis funkce) //pomocí zásobníku
+        //for loop func přímo se strokeline fkcí
+        //vykreslení grafu
+        //#########################
+        var arr = []
+        for (let i = -500; i <= 500; i += 5){
+          arr.push(eval(i, func_str));
+        }
+        return arr;
       },
+      async draw_graph(){
+
+      }
       
     }
   }
