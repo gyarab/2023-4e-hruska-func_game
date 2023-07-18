@@ -2,7 +2,7 @@
   <h1 class="nadpis">This is a Graf page</h1>
   <form class="funcInput">
     <div>
-      <input type="text" id="textus" v-bind="funkce">
+      <input type="text" id="textus" v-model="draw_graph">
       <input type="submit" id="buttonus">
     </div>
   </form>
@@ -12,57 +12,22 @@
 </template>
 
 <script>
-import Chart from "chart.js/auto";
   export default {
-    name: "Graf",
-    props: {
-      graf: Array,
-      barva: String,
-      jmeno: String,
-    },
     mounted(){
-      Chart.defaults.elements.line.cubicInterpolationMode = 'monotone';
-      Chart.defaults.plugins.legend.display = false
-      const grafus = new Chart(this.$refs.graf, {
-        type: "line",
-        data: {
-          datasets: [{
-            label: this.jmeno,
-            data: this.data
-        }],
-        labels: [-500, -400, -300, -200, -100, 0, 100, 200, 300, 400, 500]
-        }, 
-        options: {
-          scales: {
-            y: {
-                suggestedMin: -500,
-                suggestedMax: 500
-            }
-          }
-        }
-      })
+      const canvas = document.querySelector(".graf");
+      const width = (canvas.width = window.innerWidth / 3);
+      const height = (canvas.height = window.innerHeight / 3);
+      const ctx = canvas.getContext("2d");
     },
     methods: {
-      async calculate_x(func_str) {
-        //#########################
-        //convert_func(func_str)
-        //zadá funkci
-        //předání dál v podobě str
-        //zatím eval
-        //  calculate y(single input(x), předpis funkce) //pomocí zásobníku
-        //for loop func přímo se strokeline fkcí
-        //vykreslení grafu
-        //#########################
-        var arr = []
-        for (let i = -500; i <= 500; i += 5){
-          arr.push(eval(i, func_str));
-        }
-        return arr;
-      },
-      async draw_graph(){
-
+      async draw_graph(func){
+        ctx.beginPath();
+        ctx.moveTo(-500, 0);
+        for (let i = -500; i < 500; i += 5){
+          ctx.lineTo(i, eval(i, func))
+        }  
+        ctx.fill();
       }
-      
     }
   }
 </script>
@@ -78,6 +43,7 @@ import Chart from "chart.js/auto";
     margin-top: 30px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 30px;
     display: block;
   }
   .graf {
