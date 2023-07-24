@@ -2,8 +2,8 @@
   <h1 class="nadpis">This is a Graf page</h1>
   <form class="funcInput">
     <div id="app">
-      <input type="text" ref="myInput" placeholder="Function" id="textus">
-      <button @click="draw_graph" id="buttonus">Submit</button>
+      <input type="text" :value="myInput" placeholder="Function" id="textus" @input="get_value">
+      <button @click="submit" id="buttonus">Submit</button>
     </div>
   </form>
   <div class="grafDiv">
@@ -13,6 +13,11 @@
 
 <script>
   export default{
+    data(){
+      return{
+        myInput: ""
+      }
+    },
     mounted(){
       const canvas = document.querySelector(".graf");
       const width = (canvas.width = window.innerWidth / 3);
@@ -20,8 +25,17 @@
       const ctx = canvas.getContext("2d");
     },
     methods: {
+      submit(){
+
+      },
+      get_value(){
+        this.myInput = event.target.value
+        return this.myInput
+      },
       draw_graph(){
-        var func = this.$refs.myInput.value
+        var func = this.get_value()
+        console.log(func)
+        const ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.moveTo(-500, eval(-500, func));
         for (let i = -495; i < 500; i += 5){

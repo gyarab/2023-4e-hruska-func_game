@@ -1,5 +1,7 @@
 arr = []
 def infra(s) -> str:
+    if s == "1":
+        print(s, "*************")
     index = 1
     my_str = s
     final_str = ""
