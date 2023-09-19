@@ -1,13 +1,12 @@
 <template>
   <h1 class="nadpis">This is a Graf page</h1>
-  <form class="funcInput">
-    <div id="app">
-      <input type="text" :value="myInput" placeholder="Function" id="textus">
-      <button @submit.prevent="submitform" id="buttonus">calculate</button>
-    </div>
-  </form>
+  <div class="funcInput">
+    <input type="text" v-model="function_input" placeholder="Function" id="text_input">
+    <button @click="my_method" id="buttonus">submit</button>
+  </div>
+  
   <div class="grafDiv">
-    <canvas class="graf" ref="graf"></canvas>
+    <canvas id="graf" ref="graf"></canvas>
   </div>
 </template>
 
@@ -15,26 +14,26 @@
   export default{
     data(){
       return{
-        myInput: ""
+        function_input: ""
       }
     },
     mounted(){
-      const canvas = document.querySelector(".graf");
-      const width = (canvas.width = window.innerWidth / 2);
-      const height = (canvas.height = window.innerHeight / 2);
+
     },
     methods: {
-      submitform(){
-        this.draw_graph()
-      },
-      draw_graph(){
-        var func = this.myInput
-        console.log(`the func: ${func}`)
-        const ctx = canvas.getContext("2d");
+      my_method(){
+        const myCanvas = document.getElementById("graf");
+        const ctx = myCanvas.getContext("2d");
+        ctx.strokeStyle = "red";
+        ctx.font = "15px Arial";
+        ctx.fillText(this.function_input, 10, 10);
+        console.log(this.function_input)
+
+        ctx.lineWidth = 10;
         ctx.beginPath();
-        ctx.moveTo(-500, eval(-500, func));
-        for (let i = -495; i < 500; i += 5){
-          ctx.lineTo(i, eval(i, func));
+        ctx.moveTo(0, eval(0, this.function_input));
+        for (let i = 0; i < 500; i += 5){
+          ctx.lineTo(i, eval(i, this.function_input));
         }  
         ctx.fill();
       }
@@ -56,7 +55,7 @@
     margin-bottom: 30px;
     display: block;
   }
-  .graf {
+  #graf {
     width: 100% !important;
     height: 100% !important;
     text-align: center;
@@ -68,7 +67,7 @@
     justify-content: center;
     height: auto; 
   }
-  #textus{
+  #text_input{
     border-radius: 10px;
     border: solid 1px white;
     margin: 7px;
