@@ -24,6 +24,7 @@
       my_method(){
         const myCanvas = document.getElementById("graf");
         const ctx = myCanvas.getContext("2d");
+        /*
         ctx.strokeStyle = "red";
         ctx.font = "15px Arial";
         ctx.fillText(this.function_input, 10, 10);
@@ -31,11 +32,30 @@
 
         ctx.lineWidth = 10;
         ctx.beginPath();
-        ctx.moveTo(0, eval(0, this.function_input));
-        for (let i = 0; i < 500; i += 5){
+        ctx.moveTo(200, eval(200, this.function_input));
+        for (let i = 200; i < 500; i += 5){
           ctx.lineTo(i, eval(i, this.function_input));
         }  
         ctx.fill();
+        */
+        this.calculate_y(this.function_input)
+      },
+      calculate_y(a){
+        console.log(this.format_func(a))
+        const arr = []
+        for (let i = 0; i < a.length; i++){
+          arr[i] = a[i] //FIXME add functions (log, sin, cosin, ........)
+          //FIXME recognize num and operands and tuples -> calculate
+        }
+      },
+      format_func(a){
+        var func = ""
+        for (let i = 0; i < a.length; i++){
+          if (a[i] != " "){
+            func += a[i]
+          }
+        }
+        return func
       }
     }
   }
