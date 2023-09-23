@@ -22,20 +22,23 @@
     },
     methods: {
       my_method(){
-        const myCanvas = document.getElementById("graf");
+        const myCanvas = document.getElementById("graf"); //200 x 300 px
         const ctx = myCanvas.getContext("2d");
         ctx.strokeStyle = "red";
         ctx.font = "15px Arial";
         ctx.fillText(this.function_input, 10, 10);
-        console.log(this.function_input)
-
-        ctx.lineWidth = 10;
+        ctx.lineWidth = 3;
+        ctx.rect(0,0,200,300)
         ctx.beginPath();
         ctx.moveTo(0, eval(0, this.function_input));
-        for (let i = 0; i < 500; i += 5){
+        console.log(eval(10,"x + x"))
+        console.log(eval(0, this.function_input));
+        for (let i = 0; i < 300; i += 1){
           ctx.lineTo(i, eval(i, this.function_input));
+          ctx.moveTo(i, eval(i, this.function_input))
         }  
-        ctx.fill();
+        console.log(eval(300, this.function_input));
+        ctx.stroke();
       }
     }
   }
