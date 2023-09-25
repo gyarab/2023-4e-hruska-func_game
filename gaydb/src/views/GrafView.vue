@@ -21,21 +21,24 @@
 
     },
     methods: {
-      my_method(){
-        const myCanvas = document.getElementById("graf"); //200 x 300 px
+      my_method(){  //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
+                    //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
+                    //FIXME vytvořit překážky - metoda
+        const myCanvas = document.getElementById("graf");
         const ctx = myCanvas.getContext("2d");
+        myCanvas.height = innerHeight/2
+        myCanvas.width = innerWidth/2
+        console.log(myCanvas.height, myCanvas.width);
         ctx.strokeStyle = "red";
         ctx.font = "15px Arial";
         ctx.fillText(this.function_input, 10, 10);
         ctx.lineWidth = 3;
-        ctx.rect(0,0,200,300)
         ctx.beginPath();
-        ctx.moveTo(0, eval(0, this.function_input));
-        for (let i = 0; i < 300; i += 1){
-          ctx.lineTo(i, eval(i, this.function_input));
-          ctx.moveTo(i, eval(i, this.function_input))
+        for (let i = 1; i < myCanvas.width; i += 1){
+          var x = i;
+          var num = myCanvas.height - eval(i, this.function_input)
+          ctx.lineTo(i, num);
         }  
-        console.log(eval(300, this.function_input));
         ctx.stroke();
       }
     }
