@@ -14,34 +14,38 @@
   export default{
     data(){
       return{
-        function_input: ""
+        function_input: "",
+        canvas: "",
+        ctx: ""
       }
     },
     mounted(){
-      const canvas = document.getElementById("graf");
-      const ctx = canvas.getContext("2d");
-      this.draw_axes(ctx,canvas.height,canvas.width);
+      //const canvas = document.getElementById("graf");
+      this.canvas = document.getElementById("graf");
+      this.ctx = this.canvas.getContext("2d");
+      this.draw_axes(this.ctx, this.canvas.height, this.canvas.width);
     },
     methods: {
-      draw_main(){  //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
-                    //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
+      draw_main(){ //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
+        console.log("draw_main") //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
                     //FIXME vytvořit překážky - metoda
       },
       draw_axes(ctx,h,w){
-        console.log("huh")
         var axes = {};
-        axes.x0 = .5 + .5*w //pixely od x0 do P[0,0]
-        axes.y0 = .5 + .5*h //piexely od y0 do P[0,0]
-        axes.scale = 10 //10 px from x to another 
-        axes.doNegativeX = true
-        var x0=axes.x0, w=ctx.w; 
-        var y0=axes.y0, h=ctx.h;  //varibles
-        var xmin = axes.doNegativeX ? 0 : x0; //idk
+        axes.x0 = .5*w //pixely od x0 do P[0,0]
+        axes.y0 = .5*h //piexely od y0 do P[0,0]
+        //axes.scale = 10 //10 px from x to another 
+        var x0=axes.x0; 
+        var y0=axes.y0  //varibles
+        var xmin = 0; 
+        console.log(xmin, y0);
+        console.log(w,y0);
         ctx.beginPath();
-        ctx.lineWidth = .1;
+        ctx.lineWidth = .05;
         ctx.strokeStyle = "white";
         ctx.moveTo(xmin,y0); ctx.lineTo(w,y0);  // X axis
         ctx.moveTo(x0,0); ctx.lineTo(x0,h);  // Y axis
+        console.log("draw_axes")
         ctx.stroke();
       }
     }
