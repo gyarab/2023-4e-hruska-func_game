@@ -19,7 +19,7 @@
 
 #menu {
   height: var(--vyska-menu);
-  padding: 0 15px;
+  padding: 0 5px;
   display: flex;
   user-select: none;
 }

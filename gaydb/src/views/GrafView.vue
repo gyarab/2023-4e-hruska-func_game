@@ -2,7 +2,7 @@
   <h1 class="nadpis">This is a Graf page</h1>
   <div class="funcInput">
     <input type="text" v-model="function_input" placeholder="Function" id="text_input">
-    <button @click="my_method" id="buttonus">submit</button>
+    <button @click="draw_main" id="buttonus">submit</button>
   </div>
   
   <div class="grafDiv">
@@ -18,27 +18,30 @@
       }
     },
     mounted(){
-
+      const canvas = document.getElementById("graf");
+      const ctx = canvas.getContext("2d");
+      this.draw_axes(ctx,canvas.height,canvas.width);
     },
     methods: {
-      my_method(){  //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
+      draw_main(){  //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
                     //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
                     //FIXME vytvořit překážky - metoda
-        const myCanvas = document.getElementById("graf");
-        const ctx = myCanvas.getContext("2d");
-        myCanvas.height = innerHeight/2
-        myCanvas.width = innerWidth/2
-        console.log(myCanvas.height, myCanvas.width);
-        ctx.strokeStyle = "red";
-        ctx.font = "15px Arial";
-        ctx.fillText(this.function_input, 10, 10);
-        ctx.lineWidth = 3;
+      },
+      draw_axes(ctx,h,w){
+        console.log("huh")
+        var axes = {};
+        axes.x0 = .5 + .5*w //pixely od x0 do P[0,0]
+        axes.y0 = .5 + .5*h //piexely od y0 do P[0,0]
+        axes.scale = 10 //10 px from x to another 
+        axes.doNegativeX = true
+        var x0=axes.x0, w=ctx.w; 
+        var y0=axes.y0, h=ctx.h;  //varibles
+        var xmin = axes.doNegativeX ? 0 : x0; //idk
         ctx.beginPath();
-        for (let i = 1; i < myCanvas.width; i += 1){
-          var x = i;
-          var num = myCanvas.height - eval(i, this.function_input)
-          ctx.lineTo(i, num);
-        }  
+        ctx.lineWidth = .1;
+        ctx.strokeStyle = "white";
+        ctx.moveTo(xmin,y0); ctx.lineTo(w,y0);  // X axis
+        ctx.moveTo(x0,0); ctx.lineTo(x0,h);  // Y axis
         ctx.stroke();
       }
     }
