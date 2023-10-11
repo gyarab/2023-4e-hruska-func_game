@@ -2,7 +2,7 @@
   <h1 class="nadpis">This is a Graf page</h1>
   <div class="funcInput">
     <input type="text" v-model="function_input" placeholder="Function" id="text_input">
-    <button @click="draw_main" id="buttonus">submit</button>
+    <button @click="draw" id="buttonus">submit</button>
   </div>
   
   <div class="grafDiv">
@@ -24,29 +24,51 @@
       this.canvas = document.getElementById("graf");
       this.ctx = this.canvas.getContext("2d");
       this.draw_axes(this.ctx, this.canvas.height, this.canvas.width);
-    },
-    methods: {
-      draw_main(){ //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
-        console.log("draw_main") //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
-                    //FIXME vytvořit překážky - metoda
+    },             //FIXME vytvořit překážky - metoda
+    methods: { 
+      draw(){
+        this.draw_graph(this.ctx, this.canvas.height, this.canvas.width);
+      },                   //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
+      draw_graph(ctx,h,w){ //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
+        //middle var of canvas and starting point of func
+        var y0 = h / 2; var x0 = w / 2;
+        var xmin = 0; var xmax = w;
+        var ymin = 0; var ymax = h;
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(xmin, y0 - this.calculate_y(0,this.function_input));
+        var y;
+        for (let i = xmin + 1; i < xmax; i++){ //drawing graph, FIXME - collisions with objects
+          y = this.calculate_y(i,this.function_input);
+          if (y > ymax || y < ymin){
+            ctx.stroke()            
+            return;
+          }
+          console.log(y0 - y)
+          ctx.lineTo(i, y0 - y);
+          ctx.moveTo(i, y0 - y);
+        }
+        console.log("after for loop")
+        ctx.stroke();
+        console.log("graph done")
       },
       draw_axes(ctx,h,w){
-        var axes = {};
-        axes.x0 = .5*w //pixely od x0 do P[0,0]
-        axes.y0 = .5*h //piexely od y0 do P[0,0]
         //axes.scale = 10 //10 px from x to another 
-        var x0=axes.x0; 
-        var y0=axes.y0  //varibles
+        var x0 = w / 2; 
+        var y0 = h / 2;  //varibles
         var xmin = 0; 
-        console.log(xmin, y0);
-        console.log(w,y0);
         ctx.beginPath();
         ctx.lineWidth = .05;
         ctx.strokeStyle = "white";
         ctx.moveTo(xmin,y0); ctx.lineTo(w,y0);  // X axis
         ctx.moveTo(x0,0); ctx.lineTo(x0,h);  // Y axis
-        console.log("draw_axes")
         ctx.stroke();
+        console.log('axes done')
+      },
+      calculate_y(x, func){ //FIXME
+        if (func.length == 0) return;
+        return eval(func.replace('x',x))
       }
     }
   }
