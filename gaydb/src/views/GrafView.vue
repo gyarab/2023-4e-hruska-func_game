@@ -38,6 +38,7 @@
         ctx.lineWidth = 0.7;
         ctx.beginPath();
         ctx.moveTo(xmin, y0 - this.calculate_y(0,this.function_input));
+        ctx.moveTo(xmin,y0);
         var y;
         for (let i = xmin + 1; i < xmax; i++){ //drawing graph, FIXME - collisions with objects
           y = this.calculate_y(i,this.function_input);
@@ -45,11 +46,10 @@
             ctx.stroke()            
             return;
           }
-          console.log(y0 - y)
+          //console.log(y0 - y)
           ctx.lineTo(i, y0 - y);
           ctx.moveTo(i, y0 - y);
         }
-        console.log("after for loop")
         ctx.stroke();
         console.log("graph done")
       },
@@ -68,7 +68,8 @@
       },
       calculate_y(x, func){ //FIXME
         if (func.length == 0) return;
-        return eval(func.replace('x',x))
+        console.log(eval((func).replace('x',x)))
+        return eval((func).replace('x',x))
       }
     }
   }
