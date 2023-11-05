@@ -7,8 +7,8 @@
     <img alt="Vue logo" class="logo" src="@/assets/pear.svg" width="125" height="125" />
     <nav id="menu">
       <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/graf">Graf</RouterLink>
       <RouterLink to="/about">About</RouterLink>
+      <RouterLink to="/graf">Graf</RouterLink>
     </nav>
   </header>
 

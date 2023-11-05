@@ -2,7 +2,7 @@
   <h1 class="nadpis">This is a Graf page</h1>
   <div class="funcInput">
     <input type="text" v-model="function_input" placeholder="Function" id="text_input">
-    <button @click="draw" id="buttonus">submit</button>
+    <button @click="draw_graph()" id="buttonus">submit</button>
   </div>
   
   <div class="grafDiv">
@@ -26,14 +26,13 @@
       this.draw_axes(this.ctx, this.canvas.height, this.canvas.width);
     },             //FIXME vytvořit překážky - metoda
     methods: { 
-      draw(){
-        this.draw_graph(this.ctx, this.canvas.height, this.canvas.width);
-      },                   //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
-      draw_graph(ctx,h,w){ //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
+      //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
+      draw_graph(){ //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
         //middle var of canvas and starting point of func
-        var y0 = h / 2; var x0 = w / 2;
-        var xmin = 0; var xmax = w;
-        var ymin = 0; var ymax = h;
+        let ctx = this.ctx; let w =  this.canvas.width; let h = this.canvas.height;
+        let y0 = h / 2; var x0 = w / 2;
+        let xmin = 0; let xmax = w;
+        let ymin = 0; let ymax = h;
         ctx.strokeStyle = "red";
         ctx.lineWidth = 0.7;
         ctx.beginPath();
@@ -55,9 +54,9 @@
       },
       draw_axes(ctx,h,w){
         //axes.scale = 10 //10 px from x to another 
-        var x0 = w / 2; 
-        var y0 = h / 2;  //varibles
-        var xmin = 0; 
+        let x0 = w / 2; 
+        let y0 = h / 2;  //varibles
+        let xmin = 0; 
         ctx.beginPath();
         ctx.lineWidth = .05;
         ctx.strokeStyle = "white";
