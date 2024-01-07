@@ -11,6 +11,7 @@
 </template>
 
 <script>
+
   export default{
     data(){
       return{
@@ -29,46 +30,54 @@
       //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
       draw_graph(){ //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
         //middle var of canvas and starting point of func
+        console.log("function: " + this.function_input)
         let ctx = this.ctx; let w =  this.canvas.width; let h = this.canvas.height;
         let y0 = h / 2; var x0 = w / 2;
-        let xmin = 0; let xmax = w;
+        let xmin = w/8; let xmax = 3*w / 4;
         let ymin = 0; let ymax = h;
         ctx.strokeStyle = "red";
-        ctx.lineWidth = 0.7;
-        ctx.beginPath();
-        ctx.moveTo(xmin, y0 - this.calculate_y(0,this.function_input));
+        ctx.lineWidth = 1;
+        ctx.beginPath(); //kreslení grafu
         ctx.moveTo(xmin,y0);
         var y;
-        for (let i = xmin + 1; i < xmax; i++){ //drawing graph, FIXME - collisions with objects
-          y = this.calculate_y(i,this.function_input);
-          if (y > ymax || y < ymin){
-            ctx.stroke()            
+        for (let i = 0.1; i < xmax; i += 0.1){  //počítám to po 0.1, ale do grafu to jde po 1px --> 10px 1 na grafu
+          y = this.calculate_y(i, this.function_input)
+          //console.log(y);
+          console.log(y, xmin, xmax)
+          if (!(y > ymax && y < ymin)){ //hodnoty jsou v range
+            ctx.lineTo(xmin + i*10, y0 - y)
+            ctx.moveTo(xmin + i*10, y0 - y)
+          }else{
+            console.log("ende")
+            ctx.stroke();
             return;
           }
-          //console.log(y0 - y)
-          ctx.lineTo(i, y0 - y);
-          ctx.moveTo(i, y0 - y);
         }
         ctx.stroke();
-        console.log("graph done")
+        console.log("graph done");
       },
       draw_axes(ctx,h,w){
-        //axes.scale = 10 //10 px from x to another 
         let x0 = w / 2; 
         let y0 = h / 2;  //varibles
         let xmin = 0; 
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "green";
+        ctx.fillStyle = "green";
+        ctx.fillRect(0, 0, w/8, h);
+        ctx.strokeStyle = "orange"
+        ctx.fillStyle = "orange";
+        ctx.fillRect(7*w/8, 0, w/8, h)
         ctx.beginPath();
-        ctx.lineWidth = .05;
         ctx.strokeStyle = "white";
         ctx.moveTo(xmin,y0); ctx.lineTo(w,y0);  // X axis
         ctx.moveTo(x0,0); ctx.lineTo(x0,h);  // Y axis
         ctx.stroke();
         console.log('axes done')
       },
-      calculate_y(x, func){ //FIXME
-        if (func.length == 0) return;
-        console.log(eval((func).replace('x',x)))
-        return eval((func).replace('x',x))
+      calculate_y(x, func){ //FIXME;
+        const replaced = func.replaceAll('x',x);
+        console.log(replaced)
+        return Function(`return ${replaced}`)
       }
     }
   }
