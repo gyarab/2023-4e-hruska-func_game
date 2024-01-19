@@ -4,7 +4,7 @@
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/pear.svg" width="125" height="125" />
+    <img class="logo" src="@/assets/pear.svg" width="125" height="125" />
     <nav id="menu">
       <RouterLink to="/">Home</RouterLink>
       <RouterLink to="/about">About</RouterLink>
@@ -12,10 +12,16 @@
     </nav>
   </header>
 
-  <RouterView />
+  <div id="view">
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
+#view{
+  display: flex;
+  flex-direction: column;
+}
 
 #menu {
   height: var(--vyska-menu);
@@ -51,7 +57,7 @@
   }
 
   .logo {
-    margin: 0 0 0 0;
+    margin: 0;
   }
 
   nav {

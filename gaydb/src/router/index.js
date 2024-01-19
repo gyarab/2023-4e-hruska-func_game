@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
-import GrafView from '../views/GrafView.vue'
+import GrafView2 from '../views/GrafView2.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,7 +25,7 @@ const router = createRouter({
     {
       path: '/graf',
       name: 'graf',
-      component: GrafView,
+      component: GrafView2,
       meta: {
         title: 'graf'
       }
