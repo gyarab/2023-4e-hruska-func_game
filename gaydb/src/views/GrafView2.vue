@@ -47,10 +47,10 @@ export default {
             ctx.moveTo(x0, 0); ctx.lineTo(x0, h);  // Y axis
             ctx.stroke();
 
-            ctxL.strokeStyle = "blue";
+            ctxL.fillStyle = "blue";
             ctxL.fillRect(0, 0, 1000, 1500);
 
-            ctxR.strokeStyle = "red";
+            ctxR.fillStyle = "red";
             ctxR.fillRect(0, 0, 1000, 1500);
 
             console.log('axes and battlefield done');
@@ -85,10 +85,11 @@ export default {
 #kontejner {
     display: flex;
     flex-direction: column;
-    gap: 5em;
-    width: 100%;
+    gap: 2em;
     align-items: center;
-    margin: 15px;
+    height: 50vh;
+    width: 100%;
+    padding: 20px;
 }
 
 .funcInput {
@@ -100,9 +101,9 @@ export default {
 
 .grafDiv {
     display: flex;
-
+    flex-direction: row;
+    width: 100%;    
 }
-
 
 #levejGraf {
     width: 15%;
@@ -116,7 +117,6 @@ export default {
     border-right: dashed 2px red;
     border-bottom: dashed 2px red;
 }
-
 
 #graf {
     border-top: dashed 2px red;
