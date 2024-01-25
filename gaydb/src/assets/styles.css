@@ -2,6 +2,7 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+
 }
 
 :root {
@@ -9,15 +10,18 @@
     --velikost-pisma-menu: 18px;
     --bila: #eef4fc;
     --modra: #395DFC;
+    --cervena: #e12928;
     --ruzova: #FCA2D5;
-    --seda: rgba(84, 84, 84, 0.65);
-    --cerna-pozadi: #181818;
-    --seda-color: rgba(235, 235, 235, 0.64);
-    --bila-soft: #f8f8f8
+    --seda: rgba(235, 235, 235, 0.64);
+    --bila-soft: #f8f8f8;
+    --popredi: #D0C4DF;
+    --pozadi: #342539;
+    --graf-border: #6C3E81;
+    --text-input-bg: #9b3e95;
 }
 body{
-    background: var(--cerna-pozadi);
-    color: var(--seda-color)
+    background: var(--pozadi);
+    color: var(--seda)
 }
 .nadpis {
     font-size: 45px;

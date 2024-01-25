@@ -10,8 +10,8 @@ export default {
     },
     mounted() {
         this.canvas = document.getElementById("graf");
-        this.canvasL = document.getElementById("levejGraf");
-        this.canvasR = document.getElementById("pravejGraf");
+        this.canvasL = document.getElementById("levej_graf");
+        this.canvasR = document.getElementById("pravej_graf");
         this.ctxL = this.canvasL.getContext("2d");
         this.ctxR = this.canvasR.getContext("2d");
         this.ctx = this.canvas.getContext("2d");
@@ -19,7 +19,8 @@ export default {
     },             //FIXME vytvořit překážky - metoda
     methods: {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
-        draw_graph() {
+        draw_graph(e) {
+            //e.preventDefault();
             console.log("function: " + this.function_input)
             let w = this.canvas.width;
             let h = this.canvas.height;
@@ -47,10 +48,10 @@ export default {
             ctx.moveTo(x0, 0); ctx.lineTo(x0, h);  // Y axis
             ctx.stroke();
 
-            ctxL.fillStyle = "blue";
+            ctxL.fillStyle = `#DCABDF`; //levej červenej
             ctxL.fillRect(0, 0, 1000, 1500);
 
-            ctxR.fillStyle = "red";
+            ctxR.fillStyle = `#8295D9`; //pravej modrej
             ctxR.fillRect(0, 0, 1000, 1500);
 
             console.log('axes and battlefield done');
@@ -69,15 +70,15 @@ export default {
 </script>
 <template>
     <div id="kontejner">
-        <form class="funcInput">
+        <form class="func_input">
             <input type="text" v-model="function_input" placeholder="Insert function" id="text_input">
             <button @click="draw_graph()" id="buttonus" type="button">submit</button>
         </form>
 
-        <div class="grafDiv">
-            <canvas id="levejGraf" width="1000" height="1500"></canvas>
+        <div class="graf_div">
+            <canvas id="levej_graf" width="1000" height="1500"></canvas>
             <canvas id="graf" ref="graf" width="1250" height="800"></canvas>
-            <canvas id="pravejGraf" width="1000" height="1500"></canvas>
+            <canvas id="pravej_graf" width="1000" height="1500"></canvas>
         </div>
     </div>
 </template>
@@ -87,49 +88,57 @@ export default {
     flex-direction: column;
     gap: 2em;
     align-items: center;
-    height: 50vh;
+    height: 85vh;
     width: 100%;
     padding: 20px;
 }
 
-.funcInput {
+.func_input {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1em;
+    flex-direction: row;
+    gap: 2em;
 }
 
-.grafDiv {
+.graf_div {
     display: flex;
     flex-direction: row;
     width: 100%;    
 }
 
-#levejGraf {
+#levej_graf {
     width: 15%;
-    border-top: dashed 2px red;
-    border-left: dashed 2px red;
-    border-bottom: dashed 2px red;
+    border-left: solid 5px var(--graf-border);
+    border-top: solid 5px var(--graf-border);
+    border-bottom: solid 5px var(--graf-border);
 }
-#pravejGraf {
+#pravej_graf {
     width: 15%;
-    border-top: dashed 2px red;
-    border-right: dashed 2px red;
-    border-bottom: dashed 2px red;
+    border-right: solid 5px var(--graf-border);
+    border-top: solid 5px var(--graf-border);
+    border-bottom: solid 5px var(--graf-border);
 }
 
 #graf {
-    border-top: dashed 2px red;
-    border-bottom: dashed 2px red;
+    border-top: solid 5px var(--graf-border);
+    border-bottom: solid 5px var(--graf-border);
     width: 70%;
 }
 
 #buttonus {
     width: 5em;
     height: 2em;
+    border-radius: 10%;
 }
 
 #text_input {
+    width: auto;
+    color: #ffffff;
+    text-align: left;
+    padding-left: 10px;
     height: 2em;
+    border-radius: 5px;
+    background-color: var(--text-input-bg);
+    border: solid var(--seda) 1px;
 }
+
 </style>
