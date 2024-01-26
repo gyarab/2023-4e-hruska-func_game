@@ -15,7 +15,7 @@ export default {
         this.ctxL = this.canvasL.getContext("2d");
         this.ctxR = this.canvasR.getContext("2d");
         this.ctx = this.canvas.getContext("2d");
-        this.draw_axes_and_field(this.ctx,this.ctxL,this.ctxR, this.canvas.height, this.canvas.width);
+        this.draw_axes_and_field(this.ctx, this.ctxL, this.ctxR, this.canvas.height, this.canvas.width);
     },             //FIXME vytvořit překážky - metoda
     methods: {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
@@ -27,9 +27,9 @@ export default {
             this.ctx.strokeStyle = "red";
             this.ctx.lineWidth = 3;
             this.ctx.beginPath(); //kreslení grafu
-            for (let i = -w/2; i < w/2; i += .1) {
+            for (let i = -w / 2; i < w / 2; i += .1) {
                 let y = eval(this.calculate_y(i, this.function_input))
-                let [grafX, grafY] = this.konvertor(i*10, y*10)
+                let [grafX, grafY] = this.konvertor(i * 10, y * 10)
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
             }
@@ -102,7 +102,7 @@ export default {
 .graf_div {
     display: flex;
     flex-direction: row;
-    width: 100%;    
+    width: 100%;
 }
 
 #levej_graf {
@@ -111,6 +111,7 @@ export default {
     border-top: solid 5px var(--graf-border);
     border-bottom: solid 5px var(--graf-border);
 }
+
 #pravej_graf {
     width: 15%;
     border-right: solid 5px var(--graf-border);
@@ -125,20 +126,35 @@ export default {
 }
 
 #buttonus {
+    color: white;
     width: 5em;
     height: 2em;
-    border-radius: 10%;
+    border-radius: 5px;
+    background-color: var(--func-input-bg);
+    border-style: solid;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+#buttonus:hover {
+    background-color: var(--btn-hover);
 }
 
 #text_input {
+    color: white;   
     width: auto;
-    color: #ffffff;
+    height: 2em;
     text-align: left;
     padding-left: 10px;
-    height: 2em;
     border-radius: 5px;
-    background-color: var(--text-input-bg);
-    border: solid var(--seda) 1px;
+    border: none;
+    background-color: var(--func-input-bg);
+    outline: none;
+}
+
+::placeholder {
+    color: var(--seda);
 }
 
 </style>

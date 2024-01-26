@@ -17,7 +17,8 @@
     --popredi: #D0C4DF;
     --pozadi: #342539;
     --graf-border: #6C3E81;
-    --text-input-bg: #9b3e95;
+    --func-input-bg: #9b3e95;
+    --btn-hover: #d92dce;
 }
 body{
     background: var(--pozadi);
