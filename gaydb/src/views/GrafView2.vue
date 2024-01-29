@@ -24,11 +24,14 @@ export default {
             console.log("function: " + this.function_input)
             let w = this.canvas.width;
             let h = this.canvas.height;
+            const scaleX = 1;
+            const scaleY = 1;
+            this.ctx.scale(scaleX, scaleY);
             this.ctx.strokeStyle = "red";
             this.ctx.lineWidth = 3;
             this.ctx.beginPath(); //kreslení grafu
             for (let i = -w / 2; i < w / 2; i += .1) {
-                let y = eval(this.calculate_y(i, this.function_input))
+                let y = eval(this.calculate_y(i, this.function_input)) / 35 //původně bez dělení
                 let [grafX, grafY] = this.konvertor(i * 10, y * 10)
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
@@ -64,6 +67,7 @@ export default {
         calculate_y(x, func) { //FIXME;
             const replaced = func.replaceAll('x', x);
             return replaced;
+            //https://mathjs.org/docs/reference/functions.html
         }
     }
 }
@@ -102,7 +106,7 @@ export default {
 .graf_div {
     display: flex;
     flex-direction: row;
-    width: 100%;
+    width: 80%;
 }
 
 #levej_graf {
