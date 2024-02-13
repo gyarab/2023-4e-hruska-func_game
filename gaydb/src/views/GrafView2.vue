@@ -30,9 +30,9 @@ export default {
             this.ctx.strokeStyle = "red";
             this.ctx.lineWidth = 3;
             this.ctx.beginPath(); //kreslení grafu
-            for (let i = -w / 2; i < w / 2; i += .1) {
-                let y = eval(this.calculate_y(i, this.function_input)) / 35 //původně bez dělení
-                let [grafX, grafY] = this.konvertor(i * 10, y * 10)
+            for (let i = -w/2; i < w/2; i += .1) {
+                let y = eval(this.calculate_y(i, this.function_input)) / 1
+                let [grafX, grafY] = this.konvertor(i, y/1.04)
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
             }
@@ -43,19 +43,32 @@ export default {
             let x0 = w / 2;
             let y0 = h / 2;  //varibles
             let xmin = 0;
-
+            //main axis
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.strokeStyle = "white";
             ctx.moveTo(xmin, y0); ctx.lineTo(w, y0);  // X axis
             ctx.moveTo(x0, 0); ctx.lineTo(x0, h);  // Y axis
             ctx.stroke();
+            //small axis
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < w; i += w/12){
+                ctx.moveTo(i, 0); ctx.lineTo(i, h);
+            }
+            for (let i = 0; i < h; i += h/8){
+                ctx.moveTo(0, i); ctx.lineTo(w, i);
+            }
+            ctx.stroke();
 
-            ctxL.fillStyle = `#DCABDF`; //levej červenej
+            ctxL.fillStyle = `#D3C4E3`; //levej červenej //#d67cdb //`#DCABDF`
             ctxL.fillRect(0, 0, 1000, 1500);
 
-            ctxR.fillStyle = `#8295D9`; //pravej modrej
+            ctxR.fillStyle = `#8F95D3`; //pravej modrej
             ctxR.fillRect(0, 0, 1000, 1500);
+            console.log("debuuuuuuuuuuuuuug")
+            console.log((w/13)/(h/9));
+
 
             console.log('axes and battlefield done');
         },
@@ -76,7 +89,7 @@ export default {
     <div id="kontejner">
         <form class="func_input">
             <input type="text" v-model="function_input" placeholder="Insert function" id="text_input">
-            <button @click="draw_graph()" id="buttonus" type="button">submit</button>
+            <button v-on:click="draw_graph()" id="buttonus" type="button">submit</button>
         </form>
 
         <div class="graf_div">
@@ -107,25 +120,14 @@ export default {
     display: flex;
     flex-direction: row;
     width: 80%;
+    border: solid 5px var(--graf-border)
 }
 
-#levej_graf {
+#pravej_graf, #levej_graf {
     width: 15%;
-    border-left: solid 5px var(--graf-border);
-    border-top: solid 5px var(--graf-border);
-    border-bottom: solid 5px var(--graf-border);
-}
-
-#pravej_graf {
-    width: 15%;
-    border-right: solid 5px var(--graf-border);
-    border-top: solid 5px var(--graf-border);
-    border-bottom: solid 5px var(--graf-border);
 }
 
 #graf {
-    border-top: solid 5px var(--graf-border);
-    border-bottom: solid 5px var(--graf-border);
     width: 70%;
 }
 
@@ -146,7 +148,7 @@ export default {
 }
 
 #text_input {
-    color: white;   
+    color: white;
     width: auto;
     height: 2em;
     text-align: left;
@@ -160,5 +162,4 @@ export default {
 ::placeholder {
     color: var(--seda);
 }
-
 </style>
