@@ -15,6 +15,9 @@ import { RouterLink, RouterView } from 'vue-router'
         <div class="link-kontejner">
           <RouterLink to="/graf">Graf</RouterLink>
         </div>
+        <div class="link-kontejner">
+          <RouterLink to="/prihlaseni">Přihlásit se</RouterLink>
+        </div>
       </div>
       <img id="logo" src="@/assets/pear.svg"/>
     </nav>
@@ -31,7 +34,7 @@ import { RouterLink, RouterView } from 'vue-router'
 }
 
 .link-kontejner {
-  width: 5em;
+  width: 7em;
   display: flex;
   justify-content: center;
   align-items: center;

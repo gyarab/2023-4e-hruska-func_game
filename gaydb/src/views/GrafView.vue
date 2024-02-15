@@ -1,131 +1,132 @@
-<template>
-  <h1 class="nadpis">This is a Graf page</h1>
-  <div class="funcInput">
-    <input type="text" v-model="function_input" placeholder="Function" id="text_input">
-    <button @click="draw_graph()" id="buttonus">submit</button>
-  </div>
-  
-  <div class="grafDiv">
-    <canvas id="graf" ref="graf"></canvas>
-  </div>
-</template>
-
 <script>
 
-  export default{
-    data(){
-      return{
-        function_input: "",
-        canvas: "",
-        ctx: ""
-      }
-    },
-    mounted(){
-      //const canvas = document.getElementById("graf");
-      this.canvas = document.getElementById("graf");
-      this.ctx = this.canvas.getContext("2d");
-      this.draw_axes(this.ctx, this.canvas.height, this.canvas.width);
-    },             //FIXME vytvořit překážky - metoda
-    methods: { 
-      //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
-      draw_graph(){ //FIXME rozdělit do metod: calculate_y(var x), udělat global ctx / funkce vyjde z postavy hráče
-        //middle var of canvas and starting point of func
-        console.log("function: " + this.function_input)
-        let ctx = this.ctx; let w =  this.canvas.width; let h = this.canvas.height;
-        let y0 = h / 2; var x0 = w / 2;
-        let xmin = w/8; let xmax = 3*w / 4;
-        let ymin = 0; let ymax = h;
-        ctx.strokeStyle = "red";
-        ctx.lineWidth = 1;
-        ctx.beginPath(); //kreslení grafu
-        ctx.moveTo(xmin,y0);
-        var y;
-        for (let i = 0.1; i < xmax; i += 0.1){  //počítám to po 0.1, ale do grafu to jde po 1px --> 10px 1 na grafu
-          y = this.calculate_y(i, this.function_input)
-          //console.log(y);
-          console.log(y, xmin, xmax)
-          if (!(y > ymax && y < ymin)){ //hodnoty jsou v range
-            ctx.lineTo(xmin + i*10, y0 - y)
-            ctx.moveTo(xmin + i*10, y0 - y)
-          }else{
-            console.log("ende")
-            ctx.stroke();
-            return;
-          }
+export default {
+    data() {
+        return {
+            function_input: "",
+            canvas: "",
+            ctx: ""
         }
-        ctx.stroke();
-        console.log("graph done");
-      },
-      draw_axes(ctx,h,w){
-        let x0 = w / 2; 
-        let y0 = h / 2;  //varibles
-        let xmin = 0; 
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "green";
-        ctx.fillStyle = "green";
-        ctx.fillRect(0, 0, w/8, h);
-        ctx.strokeStyle = "orange"
-        ctx.fillStyle = "orange";
-        ctx.fillRect(7*w/8, 0, w/8, h)
-        ctx.beginPath();
-        ctx.strokeStyle = "white";
-        ctx.moveTo(xmin,y0); ctx.lineTo(w,y0);  // X axis
-        ctx.moveTo(x0,0); ctx.lineTo(x0,h);  // Y axis
-        ctx.stroke();
-        console.log('axes done')
-      },
-      calculate_y(x, func){ //FIXME;
-        const replaced = func.replaceAll('x',x);
-        console.log(replaced)
-        return Function(`return ${replaced}`)
-      }
+    },
+    mounted() {
+        this.canvas = document.getElementById("graf");
+        this.canvasL = document.getElementById("levej_graf");
+        this.canvasR = document.getElementById("pravej_graf");
+        this.ctxL = this.canvasL.getContext("2d");
+        this.ctxR = this.canvasR.getContext("2d");
+        this.ctx = this.canvas.getContext("2d");
+        this.draw_axes_and_field(this.ctx, this.ctxL, this.ctxR, this.canvas.height, this.canvas.width);
+    },             //FIXME vytvořit překážky - metoda
+    methods: {
+        //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
+        draw_graph(e) {
+            //e.preventDefault();
+            console.log("function: " + this.function_input)
+            let w = this.canvas.width;
+            let h = this.canvas.height;
+            const scaleX = 1;
+            const scaleY = 1;
+            this.ctx.scale(scaleX, scaleY);
+            this.ctx.strokeStyle = "red";
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath(); //kreslení grafu
+            for (let i = -w/2; i < w/2; i += .1) {
+                let y = eval(this.calculate_y(i, this.function_input)) / 1
+                let [grafX, grafY] = this.konvertor(i, y/1.04)
+                this.ctx.lineTo(grafX, grafY);
+                this.ctx.moveTo(grafX, grafY);
+            }
+            this.ctx.stroke();
+            console.log("graph done");
+        },
+        draw_axes_and_field(ctx, ctxL, ctxR, h, w) {
+            let x0 = w / 2;
+            let y0 = h / 2;  //varibles
+            let xmin = 0;
+            //main axis
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.strokeStyle = "white";
+            ctx.moveTo(xmin, y0); ctx.lineTo(w, y0);  // X axis
+            ctx.moveTo(x0, 0); ctx.lineTo(x0, h);  // Y axis
+            ctx.stroke();
+            //small axis
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < w; i += w/12){
+                ctx.moveTo(i, 0); ctx.lineTo(i, h);
+            }
+            for (let i = 0; i < h; i += h/8){
+                ctx.moveTo(0, i); ctx.lineTo(w, i);
+            }
+            ctx.stroke();
+
+            ctxL.fillStyle = `#D3C4E3`; //levej červenej //#d67cdb //`#DCABDF`
+            ctxL.fillRect(0, 0, 1000, 1500);
+
+            ctxR.fillStyle = `#8F95D3`; //pravej modrej
+            ctxR.fillRect(0, 0, 1000, 1500);
+            console.log("debuuuuuuuuuuuuuug")
+            console.log((w/13)/(h/9));
+
+
+            console.log('axes and battlefield done');
+        },
+        konvertor(x, y) { //graph cords
+            let y2 = -y + this.canvas.height / 2;
+            let x2 = x + this.canvas.width / 2;
+            return [x2, y2];
+        },
+        calculate_y(x, func) { //FIXME;
+            const replaced = func.replaceAll('x', x);
+            return replaced;
+            //https://mathjs.org/docs/reference/functions.html
+        }
     }
-  }
+}
 </script>
+<template>
+    <div class="kontejner">
+        <form class="func_input">
+            <input type="text" v-model="function_input" placeholder="Insert function" class="text_input">
+            <button v-on:click="draw_graph()" class="btn" type="button">submit</button>
+        </form>
+
+        <div class="graf_div">
+            <canvas id="levej_graf" width="1000" height="1500"></canvas>
+            <canvas id="graf" ref="graf" width="1250" height="800"></canvas>
+            <canvas id="pravej_graf" width="1000" height="1500"></canvas>
+        </div>
+    </div>
+</template>
 <style>
-  .grafDiv{
+.kontejner {
     display: flex;
-    justify-content: center;
-    border: solid red 1px;
-    width: 80em;
-    height: 100%;
-    padding-left: 0;
-    padding-right: 0;
-    margin-top: 30px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 30px;
-    display: block;
-  }
-  #graf {
-    width: 100% !important;
-    height: 100% !important;
-    text-align: center;
-  }
-  .funcInput{
-    padding: 0;
-    margin: 0;
+    flex-direction: column;
+    gap: 2em;
+    align-items: center;
+    height: 85vh;
+    width: 100%;
+    padding: 20px;
+}
+.func_input {
     display: flex;
-    justify-content: center;
-    height: auto; 
-  }
-  #text_input{
-    border-radius: 10px;
-    border: solid 1px white;
-    margin: 7px;
-    height: 30px;
-    background-color: lightgray;
-    padding: 5px;
-  }
-  #buttonus{
-    border-radius: 10px;
-    border: solid 1px white;
-    margin: 7px;
-    height: 30px;
-    background-color: var(--seda-color);
-    font-size: 15px;
-    padding: 5px;
-    color: black;
-    font-weight: bold;
-  }
+    flex-direction: row;
+    gap: 2em;
+}
+.graf_div {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+    border: solid 5px var(--graf-border)
+}
+#pravej_graf, #levej_graf {
+    width: 15%;
+}
+#graf {
+    width: 70%;
+}
+::placeholder {
+    color: var(--seda);
+}
 </style>

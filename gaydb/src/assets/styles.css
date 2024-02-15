@@ -17,15 +17,56 @@
     --popredi: #D0C4DF;
     --pozadi: #342539;
     --graf-border: #6C3E81;
-    --func-input-bg: #9b3e95;
-    --btn-hover: #d92dce;
+    --func-input-bg: #7d3278;
+    --login-form-bg: #552152;
+    --btn-hover: #891f82;
 }
 body{
     background: var(--pozadi);
     color: var(--seda)
 }
 .nadpis {
+    margin: 10px;
     font-size: 45px;
     text-align: center;
     color: var(--bila-soft)
+}
+h1 {
+    font-size: 32px;
+}
+.text_input {
+    color: white;
+    width: 100%;
+    height: 2.5em;
+    font-size: 15px;
+    text-align: left;
+    padding-left: 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--func-input-bg);
+    outline: none;
+}
+.btn {
+    color: white;
+    width: 5em;
+    font-size: 15px;
+    height: 2.5em;
+    border-radius: 5px;
+    background-color: var(--func-input-bg);
+    border-style: solid;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    align-self: center;
+}
+.btn:hover {
+    background-color: var(--btn-hover);
+}
+.label {
+    font-size: 1.3em;
+    align-self: left;
+}
+.herka {
+    width: 75%;
+    align-self: center;
 }
