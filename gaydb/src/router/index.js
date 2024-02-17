@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import GrafView from '../views/GrafView.vue'
 import PrihlaseniView from '../views/PrihlaseniView.vue'
+import RegistraceView from '../views/RegistraceView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,14 @@ const router = createRouter({
       component: PrihlaseniView,
       meta: {
         title: 'Přihlásit se'
+      }
+    },
+    {
+      path: '/registrace',
+      name: 'registrace',
+      component: RegistraceView,
+      meta: {
+        title: 'Registrovat se'
       }
     }
   ]

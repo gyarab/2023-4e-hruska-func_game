@@ -43,7 +43,7 @@ export default {
 </script>
 
 <template>
-    <h1 class="nadpis">Login screen</h1>
+    <h1 class="nadpis">Registrace</h1>
     <div class="kontejner_login">
         <form id="login_form" method="post" v-on:submit="validateForm">
             <label class="label" for="uname">Email:</label>
@@ -52,9 +52,13 @@ export default {
             <label class="label" for="password">Heslo:</label>
             <input class="text_input" v-bind:class="{ 'invalid': errors.length && !password }" name="password"
                 type="password" v-model="password" placeholder="Zadejte heslo" required />
+            <label class="label" for="password">Heslo znovu:</label>
+            <input class="text_input" v-bind:class="{ 'invalid': errors.length && !password }" name="password"
+                type="password" v-model="password" placeholder="Zadejte heslo" required />
+
             <button v-on:click="validateForm" class="btn" type="submit">Přihlásit</button>
             <hr class="herka">
-            <a href="/registrace" id="podform">Založení účtu: Registrace</a>
+            <a href="/prihlaseni" id="podform">Mámte účet?: Přihlášení</a>
         </form>
     </div>
     <transition name="fade">
@@ -92,9 +96,9 @@ export default {
 #login_form {
     display: flex;
     flex-direction: column;
-    gap: 1.3em;
+    gap: 1.2em;
     width: 25%;
-    height: 70%;
+    height: 80%;
     background-color: var(--login-form-bg);
     margin-top: 1.7em;
     padding: 2em;
@@ -113,11 +117,13 @@ input.invalid {
     border: 1px solid red;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
     transition: opacity 1s;
 }
 
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
     opacity: 0;
 }
 </style>

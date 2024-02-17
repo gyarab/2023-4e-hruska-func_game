@@ -1,3 +1,5 @@
 uvicorn
 fastapi
 mysql-connector-python
+pyjwt
+python-decouple
