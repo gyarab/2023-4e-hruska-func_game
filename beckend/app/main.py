@@ -18,12 +18,21 @@ fake_users_db = {
         "hashed_password": "fakehashedsecret2",
         "disabled": True,
     },
+    "Hruskq": {
+        "username": "Hruskq",
+        "full_name": "",
+        "email": "",
+        "hashed_password": "Fregy",
+        "disabled": False
+    }
 }
+
+
 
 app = FastAPI()
 
 def fake_hash_password(password: str):
-    return "fakehashed" + password
+    return password
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

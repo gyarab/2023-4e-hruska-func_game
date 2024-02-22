@@ -31,8 +31,8 @@ export default {
             this.ctx.lineWidth = 3;
             this.ctx.beginPath(); //kreslení grafu
             for (let i = -w/2; i < w/2; i += .1) {
-                let y = eval(this.calculate_y(i, this.function_input)) / 1
-                let [grafX, grafY] = this.konvertor(i, y/1.04)
+                let y = eval(this.calculate_y(i, this.function_input)) // / 1
+                let [grafX, grafY] = this.konvertor(i*(w/12), y*(w/12)/1.04) //1.04 - dont judge me
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
             }
@@ -73,8 +73,8 @@ export default {
             console.log('axes and battlefield done');
         },
         konvertor(x, y) { //graph cords
-            let y2 = -y + this.canvas.height / 2;
-            let x2 = x + this.canvas.width / 2;
+            let y2 = (-y + this.canvas.height / 2) / 1;  
+            let x2 = (x + this.canvas.width / 2) / 1;
             return [x2, y2];
         },
         calculate_y(x, func) { //FIXME;
