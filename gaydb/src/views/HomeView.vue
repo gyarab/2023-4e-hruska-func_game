@@ -8,8 +8,8 @@
     </div>
     <div id="test_server">
       <h1>Server srandy</h1>
-      <input class="text_input" v-model="input_data" form="text" placeholder="pošlete zprávu serveru" />
-      <button id="activator" v-on:click="smth_with_server">send msg to server</button>
+      <input class="text_input" id="text_server" v-model="input_data" form="text" placeholder="pošlete zprávu serveru" />
+      <button id="activator" v-on:click="sendMsg">send msg to server</button>
       <p>Server response: {{ this.server_response }}</p>
     </div>
   </div>
@@ -49,7 +49,7 @@
 
 <script>
 import axios from "axios";
-
+let socket = new WebSocket("ws://localhost:8080");
 
 export default {
   data() {
@@ -73,15 +73,40 @@ export default {
         this.msg = 'Error fetching data';
       }
     },
-    smth_with_server() {
-      const ws = new WebSocket("ws://localhost:8080");
-      ws.addEventListener("open", () => {
-        console.log("we are connected");
+    connectToServer() {
+      socket.onopen = function(e) {
+        socket.send("Connection to the server from vue")
+      }
+      socket.onclose = function(event) {
+        if (event.wasClean) {
+          console.log(`[Frontend] clean conn close, code= ${event.code}`)
+        } else {
+          console.log(`[Frontend] conn died`)
+        }
+      }
+
+      socket.onerror = function(error) {
+        console.log(`[Frontend] error: ${error}`)
+      }
+      socket.addEventListener("mesasge", (message) => {
+        console.log(`[Frontend] displaying data from server ${message.data}`)
+        this.server_response = message.data;
       });
 
-      ws.addEventListener("message", (e) => {
-        this.server_response = e;
-      });
+    },
+    sendMsg() {
+      this.connectToServer();
+      
+      const msg = {
+        type: "message",
+        text: document.getElementById("text_server").value,
+      }
+      console.log(`[Frontend] displaying sended data: ${msg.text}`)
+      socket.send(msg.text);
+
+      socket.onmessage = (event) => {
+        this.server_response = event.data
+      }
     }
     
   }

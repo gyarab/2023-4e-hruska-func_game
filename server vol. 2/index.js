@@ -4,14 +4,14 @@ const wss = new WebSocket.Server({port: 8080});
 console.log("[STARTING] the server has started...")
 
 wss.on("connection", ws => {
-    console.log("New client connected");
-
+    console.log("[Beckend] New client connected");
+    
     ws.on("message", message => {
-        console.log("in a message method");
-        console.log(`received message from client: ${message}`);
         try{
+            console.log(`[Beckend] displaying message: ${message}`)
             const data = parseInt(message);
             const response = data * 2;
+            console.log(`[Beckend] sending data: ${JSON.stringify(response)}`)
             ws.send(JSON.stringify(response));
             //const input = JSON.parse(data);
             //console.log(input)
