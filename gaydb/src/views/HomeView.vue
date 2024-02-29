@@ -63,17 +63,17 @@ export default {
 
   },
   methods: {
-    async requestData() {
+    async requestData() { //test api
       try {
         const response = await axios.get('http://127.0.0.1:5173/');
-        console.log(response)
-        this.msg = response.data.message;
+        console.log(`[response] ${response}`)
+        this.api_msg = response.data.message;
       } catch (error) {
         console.error('Error fetching data:', error);
-        this.msg = 'Error fetching data';
+        this.api_msg = 'Error fetching data';
       }
     },
-    connectToServer() {
+    connectToServer() { //test server
       socket.onopen = function(e) {
         socket.send("Connection to the server from vue")
       }
@@ -94,7 +94,7 @@ export default {
       });
 
     },
-    sendMsg() {
+    sendMsg() { //test server
       this.connectToServer();
       
       const msg = {

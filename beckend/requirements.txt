@@ -1,5 +1,4 @@
 fastapi       
-uvicorn      
-sqlalchemy        
-pyjwt           
-python-multipart
+uvicorn
+pydantic   
+mysql-connector
