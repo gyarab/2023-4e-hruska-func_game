@@ -1,4 +1,5 @@
 fastapi       
 uvicorn
-pydantic   
-mysql-connector
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
