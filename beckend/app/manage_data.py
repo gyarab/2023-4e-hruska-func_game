@@ -1,6 +1,6 @@
 import hashlib
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from passlib.context import CryptContext
 from models import FormData, TokenData, User
 from fastapi.encoders import jsonable_encoder
@@ -20,10 +20,33 @@ def increase_level(connection, id: int):
   return cur.fetchall()[0][0]
 
 def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+    return hashlib.sha512(password.encode()).hexdigest()
+
+def authorized(connection ,req: Request) -> bool:
+    token = get_token(req)
+    if token is None:
+        return False
+    if not user_exists(connection, token["name"]):
+        return False
+    return True
+
+def get_token(req):
+    try:
+        token = req.headers["Authorization"].split()[1]
+        return jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[
+                ALGORITHM,
+            ],
+        )
+    except:
+        return None
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    password = (plain_password).encode("utf-8")
+    new_hash = hashlib.sha512(password).hexdigest()
+    return f"{new_hash}" == hashed_password
 
 def get_levels(connection, name: str):
     cur = connection.cursor()
@@ -49,33 +72,31 @@ def get_all(connection):
 
 def get_password(connection, name: str) -> str:
     cur = connection.cursor()
-    sql_get_password = "select hashed_password from users where email = ?"
+    sql_get_password = "select hashed_password from users where username = ?"
     cur.execute(sql_get_password,(name,))
     return cur.fetchall()[0][0]
 
 def get_user(connection, name: str):
     cur = connection.cursor()
-    sql_get_user = "select hashed_password from users where email = ?"
+    sql_get_user = "select hashed_password from users where username = ?"
     cur.execute(sql_get_user,(name,))
     return cur.fetchall()[0][0]
 
 def user_exists(connection, name: str) -> bool:
     cur = connection.cursor()
-    sql_user_exists = "select email from users where email = ?"
+    sql_user_exists = "select username from users where username = ?"
     cur.execute(sql_user_exists, (name,))
     if len(cur.fetchall()) > 0:
         return True
     return False
 
-def authenticate_user(connection, fdata: FormData):
-    
-    login_data = jsonable_encoder(fdata)
-    if not user_exists(connection, login_data["email"]):
-        return {"message", "user doesn't exists"}
-    if not verify_password(login_data["plainpassword"], get_password(connection, login_data["email"])):
-        return {"message", "wrong password"}
+def authenticate_user(connection, username, password):
+    if not user_exists(connection, username):
+        return {"message": "user doesn't exists"}
+    if not verify_password(password, get_password(connection, username)):
+        return {"message": "wrong password"}
 
-    return login_data["email"]
+    return username
 
 def create_access_token(login_item: FormData, expires_delta: timedelta):
     login_data = jsonable_encoder(login_item)

@@ -29,5 +29,7 @@ sql_insert_users = "INSERT OR IGNORE INTO users (username, hashed_password, leve
 
 cur.executemany(sql_insert_users, users_data)
 
+#cur.execute("delete from users")
+
 con.commit()
 con.close()
