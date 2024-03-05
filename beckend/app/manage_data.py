@@ -92,24 +92,23 @@ def user_exists(connection, name: str) -> bool:
 
 def authenticate_user(connection, username, password):
     if not user_exists(connection, username):
-        return {"message": "user doesn't exists"}
+        return False
     if not verify_password(password, get_password(connection, username)):
-        return {"message": "wrong password"}
+        return False
 
     return username
 
 def create_access_token(login_item: FormData, expires_delta: timedelta):
     login_data = jsonable_encoder(login_item)
+    print(login_data)
+    """
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
+    """
 
-    payload = {
-        "name": login_data["email"],
-    }
-
-    return {"token": jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)}
+    return {"token": jwt.encode(login_data, SECRET_KEY, algorithm=ALGORITHM)}
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
