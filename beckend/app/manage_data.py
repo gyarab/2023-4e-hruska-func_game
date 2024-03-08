@@ -20,7 +20,7 @@ def increase_level(connection, id: int):
   return cur.fetchall()[0][0]
 
 def hash_password(password):
-    return hashlib.sha512(password.encode()).hexdigest()
+    return pwd_context.hash(password)
 
 def authorized(connection ,req: Request) -> bool:
     token = get_token(req)
@@ -44,9 +44,7 @@ def get_token(req):
         return None
 
 def verify_password(plain_password, hashed_password):
-    password = (plain_password).encode("utf-8")
-    new_hash = hashlib.sha512(password).hexdigest()
-    return f"{new_hash}" == hashed_password
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_levels(connection, name: str):
     cur = connection.cursor()
@@ -76,7 +74,7 @@ def get_password(connection, name: str) -> str:
     cur.execute(sql_get_password,(name,))
     return cur.fetchall()[0][0]
 
-def get_user(connection, name: str):
+def get_user(connection, name: str): #gets user from db by name, should return all values as keys : value #FIXME
     cur = connection.cursor()
     sql_get_user = "select hashed_password from users where username = ?"
     cur.execute(sql_get_user,(name,))
@@ -90,27 +88,34 @@ def user_exists(connection, name: str) -> bool:
         return True
     return False
 
-def authenticate_user(connection, username, password):
-    if not user_exists(connection, username):
+def authenticate_user(connection, username, password): #gets user, checks if the user exists --> password is correct
+    user = get_user(connection, username)
+    print(f"user in method authenticate user: {user}")
+    if not user:
         return False
-    if not verify_password(password, get_password(connection, username)):
+    if get_password(connection, username) == password:
+        print("they are metched u moron")
+    if not verify_password(password, get_password(connection, username)): #password, hashed password
         return False
 
-    return username
+    return user
 
-def create_access_token(login_item: FormData, expires_delta: timedelta):
-    login_data = jsonable_encoder(login_item)
-    print(login_data)
-    """
+def create_access_token(connection, login_item: FormData, expires_delta: timedelta): #copy dict, gets expire, adds a "exp":expire to data, encodes
+    
+    to_encode = get_user(connection, login_item.email) #email, hashed
+    print(to_encode)
+    print(to_encode)
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    """
 
-    return {"token": jwt.encode(login_data, SECRET_KEY, algorithm=ALGORITHM)}
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+    return encoded_jwt
+
+async def get_current_user(connection, token: str = Depends(oauth2_scheme)): #parse token, 
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                           detail="could not authorized user", headers={"WWW-Authenticate":"Bearer"})
     try: 
@@ -123,7 +128,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credential_exception
     
-    user = get_user(username=token_data.username)
+    user = get_user(connection, username=token_data.username)
     if user is None:
         raise credential_exception
     

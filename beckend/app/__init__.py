@@ -1,17 +1,11 @@
 import sqlite3
-import hashlib
+from manage_data import hash_password
 
 con = sqlite3.connect("users.db")
 cur = con.cursor()
-
+#""" #if delete needed
 cur.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL, hashed_password VARCHAR(255) NOT NULL, levels INTEGER);")
 
-
-# Function to hash the password using HMAC-SHA256
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-# Insert 10 users with hashed passwords
 users_data = [
     ('user1', hash_password('password1'), 0),
     ('user2', hash_password('password2'), 0),
@@ -28,8 +22,9 @@ users_data = [
 sql_insert_users = "INSERT OR IGNORE INTO users (username, hashed_password, levels) VALUES (?, ?, ?);"
 
 cur.executemany(sql_insert_users, users_data)
+#""" #if delete needed
 
-#cur.execute("delete from users")
+#cur.execute("delete from users") # only for clearing db
 
 con.commit()
 con.close()

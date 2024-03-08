@@ -23,13 +23,15 @@ def create_user(fdata: FormData):
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    print(f"in post /token, formdata: {form_data.username}, {form_data.password}")
     user = authenticate_user(con, form_data.username, form_data.password)
-    if user:
+    print(f"user in /token post: {user}")
+    if user: #kinda bad???????????????????? bylo to bez not
       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                            detail="incorrect username or password", headers={"WWW-Authenticate":"Bearer"})
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRES_MINUTES) 
-    access_token = create_access_token(form_data.username, expires_delta=access_token_expires) #data={"sub": form_data.username}
+    access_token = create_access_token({"sub": form_data.username}, expires_delta=access_token_expires) #data={"sub": form_data.username}
     print(access_token)
 
     return {"access_token": access_token, "token_type": "bearer"}
