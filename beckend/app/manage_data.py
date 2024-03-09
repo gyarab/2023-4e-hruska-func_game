@@ -101,17 +101,16 @@ def authenticate_user(connection, username, password): #gets user, checks if the
     return user
 
 def create_access_token(connection, login_item: FormData, expires_delta: timedelta): #copy dict, gets expire, adds a "exp":expire to data, encodes
-    
-    to_encode = get_user(connection, login_item.email) #email, hashed
-    print(to_encode)
-    print(to_encode)
+    to_encode = get_user(connection, login_item["sub"]) #email, hashed
+    new_dict = {'hashed': to_encode, 'exp': None}
+    print(f"aaaaaaaaaaaaaaaaaaaaa   {new_dict}")
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
 
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    new_dict.update({"exp": expire})
+    encoded_jwt = jwt.encode(new_dict, SECRET_KEY, algorithm=ALGORITHM)
 
     return encoded_jwt
 
