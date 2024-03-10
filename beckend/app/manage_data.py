@@ -72,7 +72,8 @@ def get_password(connection, name: str) -> str:
     cur = connection.cursor()
     sql_get_password = "select hashed_password from users where username = ?"
     cur.execute(sql_get_password,(name,))
-    return cur.fetchall()[0][0]
+    a = cur.fetchall()[0][0]
+    return a
 
 def get_user(connection, name: str): #gets user from db by name, should return all values as keys : value #FIXME
     cur = connection.cursor()
@@ -97,13 +98,11 @@ def authenticate_user(connection, username, password): #gets user, checks if the
         print("they are metched u moron")
     if not verify_password(password, get_password(connection, username)): #password, hashed password
         return False
-
     return user
 
 def create_access_token(connection, login_item: FormData, expires_delta: timedelta): #copy dict, gets expire, adds a "exp":expire to data, encodes
     to_encode = get_user(connection, login_item["sub"]) #email, hashed
     new_dict = {'hashed': to_encode, 'exp': None}
-    print(f"aaaaaaaaaaaaaaaaaaaaa   {new_dict}")
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:

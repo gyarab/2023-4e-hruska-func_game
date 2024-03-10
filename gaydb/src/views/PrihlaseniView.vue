@@ -1,41 +1,55 @@
 <script>
+import axios from 'axios'
+
 export default {
     data() {
         return {
-            email: null,
-            password: null,
+            formData: {
+                email: "",
+                password: "",
+            },
+            spatneHeslo: false,
+            spatnyEmail: false,
             errors: [],
-            showError: false
+            showError: false,
         }
     },
     methods: {
-        validateForm(e) {
-            console.log("validating form")
-            this.errors = [];
-            if (!this.password) {
-                this.errors.push("Name required.");
-                console.log("password required")
+        login(e){
+            e.preventDefault()
+            console.log(this.email, this.password)
+            if (!this.email.length > 5){
+                this.spatnyEmail = true
+            } else if (!this.password){ //nic nenapsal - snad
+                this.spatneHeslo = true
             }
-            if (!this.email) {
-                console.log("empty email")
-                this.errors.push('Email required.');
-            } else if (!this.validEmail(this.email)) {
-                console.log("invalid email")
-                this.errors.push('Valid email required.');
-            }
-            if (!this.errors.length) {
-                return true;
-            }
-            e.preventDefault();
+            if (this.spatnyEmail || this.spatneHeslo) return //nic se nestane
+            
+            const { email, password } = this.formData;
 
-            this.showError = true;
-            setTimeout(() => {
-                this.showError = false;
-            }, 2000);
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('username', this.email);
+            formData.append('password', this.password);
+
+            axios.post('http://127.0.0.1:5713/prihlaseni', formData)
+            .then(response => {
+                localStorage.setItem("token_type",response.data.token_type)
+                localStorage.setItem("token",response.data.access_token)
+                this.$router.push('/ucet');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            
         },
-        validEmail(email) {
-            let re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return re.test(email);
+        zmena(){
+            this.spatnyEmail = false
+            this.spatneHeslo = false
+        },
+        prihlasitOnSuccess(){
+
         }
     }
 }
@@ -46,23 +60,18 @@ export default {
     <h1 class="nadpis">Login screen</h1>
     <div class="op">
         <div class="kontejner_login">
-            <form class="login_form" method="post" v-on:submit="validateForm">
+            <form class="login_form">
                 <label class="label" for="uname">Email:</label>
-                <input class="text_input" v-bind:class="{ 'invalid': errors.length && !validEmail(email) }" name="uname"
-                type="text" v-model="email" placeholder="Zadejte email" required />
+                <input class="text_input" name="uname" type="text" v-model="email" placeholder="Zadejte email"/>
+
                 <label class="label" for="password">Heslo:</label>
-                <input class="text_input" v-bind:class="{ 'invalid': errors.length && !password }" name="password"
-                type="password" v-model="password" placeholder="Zadejte heslo" required />
-                <button v-on:click="validateForm" class="btn" type="submit">Přihlásit</button>
+                <input class="text_input" name="password" type="password" v-model="password" placeholder="Zadejte heslo"/>
+
+                <button v-on:click="login" class="btn" type="submit">Přihlásit</button>
                 <hr class="herka">
                 <a href="/registrace" id="podform">Založení účtu: Registrace</a>
             </form>
         </div>
-        <transition name="fade">
-            <div v-if="errors.length && showError" class="error_kontejner">
-                <p v-for="error in errors">{{ error }}</p>
-            </div>
-        </transition>
     </div>
 </template>
 

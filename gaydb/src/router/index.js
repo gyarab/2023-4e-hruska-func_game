@@ -4,6 +4,7 @@ import AboutView from '../views/AboutView.vue'
 import GrafView from '../views/GrafView.vue'
 import PrihlaseniView from '../views/PrihlaseniView.vue'
 import RegistraceView from '../views/RegistraceView.vue'
+import UcetView from '../views/UcetView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,7 +48,15 @@ const router = createRouter({
       meta: {
         title: 'Registrovat se'
       }
-    }
+    },
+    {
+      path: '/ucet',
+      name: 'ucet',
+      component: UcetView,
+      meta: {
+        title: 'Me, myself and I'
+      }
+    },
   ]
 })
 

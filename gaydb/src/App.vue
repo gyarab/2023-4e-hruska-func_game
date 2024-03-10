@@ -18,6 +18,9 @@ import { RouterLink, RouterView } from 'vue-router'
         <div class="link-kontejner">
           <RouterLink to="/prihlaseni">Přihlásit se</RouterLink>
         </div>
+        <div class="link-kontejner">
+          <RouterLink to="/ucet">Účet</RouterLink>
+        </div>
       </div>
       <img id="logo" src="@/assets/pear.svg"/>
     </nav>
