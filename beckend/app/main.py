@@ -9,14 +9,6 @@ app = FastAPI()
 con = sqlite3.connect("users.db", check_same_thread=False)
 
 
-@app.get("/")
-def read_root():
-    print((hash_password('password1'), get_password(con, "user1")))
-    if (hash_password("password1") is get_password(con, "user1")):
-          return {"message": "ADFXGHZUIUGTFCHVF"}  
-    else:
-      return {"Message": "Not working pičo"}
-
 @app.get("/users")
 def get_all_users():
   return get_all(con)
