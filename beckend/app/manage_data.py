@@ -91,11 +91,9 @@ def user_exists(connection, name: str) -> bool:
 
 def authenticate_user(connection, username, password): #gets user, checks if the user exists --> password is correct
     user = get_user(connection, username)
-    print(f"user in method authenticate user: {user}")
+    #print(f"user in method authenticate user: {user}")
     if not user:
         return False
-    if get_password(connection, username) == password:
-        print("they are metched u moron")
     if not verify_password(password, get_password(connection, username)): #password, hashed password
         return False
     return user

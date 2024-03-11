@@ -34,7 +34,7 @@ export default {
 
             axios.post('http://127.0.0.1:5713/prihlaseni', formData)
             .then(response => {
-                localStorage.setItem("token_type",response.data.token_type)
+                //localStorage.setItem("token_type",response.data.token_type)
                 localStorage.setItem("token",response.data.access_token)
                 this.$router.push('/ucet');
             })
@@ -45,6 +45,7 @@ export default {
             
         },
         zmena(){
+            console.log("in zmena")
             this.spatnyEmail = false
             this.spatneHeslo = false
         },
@@ -98,11 +99,4 @@ input.invalid {
     border: 1px solid red;
 }
 
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 1s;
-}
-
-.fade-enter, .fade-leave-to {
-    opacity: 0;
-}
 </style>

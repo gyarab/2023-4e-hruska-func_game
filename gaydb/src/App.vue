@@ -1,5 +1,7 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+//import { prihlasen } from 'xxx'
+
 </script>
 
 <template>
@@ -15,11 +17,11 @@ import { RouterLink, RouterView } from 'vue-router'
         <div class="link-kontejner">
           <RouterLink to="/graf">Graf</RouterLink>
         </div>
-        <div class="link-kontejner">
-          <RouterLink to="/prihlaseni">Přihlásit se</RouterLink>
+        <div v-if="!prihlasen" class="link-kontejner">
+          <RouterLink to="/prihlaseni">Přihlášení</RouterLink>
         </div>
-        <div class="link-kontejner">
-          <RouterLink to="/ucet">Účet</RouterLink>
+        <div v-else class="link-kontejner">
+          <RouterLink to="/ucet">Můj účet</RouterLink>
         </div>
       </div>
       <img id="logo" src="@/assets/pear.svg"/>

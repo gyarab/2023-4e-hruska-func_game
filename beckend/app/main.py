@@ -21,7 +21,6 @@ app.add_middleware(
 
 con = sqlite3.connect("users.db", check_same_thread=False)
 
-
 @app.get("/users")
 def get_all_users():
   return get_all(con)
@@ -29,7 +28,6 @@ def get_all_users():
 @app.post("/registrace")
 def create_user(fdata: FormData):
   pass
-
 
 @app.post("/prihlaseni", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -44,12 +42,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
     return {"access_token": access_token, "token_type": "bearer"}
 
-
-
 @app.get("/ucet", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
-   return current_user
+    print(current_user)
+    return current_user
 
-@app.get("/users/me/levels", response_model=User)
-async def read_own_levels(current_user: User = Depends(get_current_active_user)):
-   return get_levels(con, current_user)
