@@ -32,7 +32,7 @@ export default {
             formData.append('username', this.email);
             formData.append('password', this.password);
 
-            axios.post('http://127.0.0.1:5713/prihlaseni', formData)
+            axios.post('http://127.0.0.1:5173/prihlaseni', formData)
             .then(response => {
                 //localStorage.setItem("token_type",response.data.token_type)
                 localStorage.setItem("token",response.data.access_token)

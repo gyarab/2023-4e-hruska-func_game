@@ -5,10 +5,11 @@
       <p>my data: {{ info }}</p>
       <button v-on:click="logout" class="log-out">odhlásit se</button>
     </div>
-  </template>
+</template>
   
 <script>
-
+import { getToken } from '../vars.vue'
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -37,16 +38,18 @@ export default {
     },
     async getMyInfo(){
       try{
-        let resp = await axios.get('http://127.0.0.1:5713/', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
+        console.log("in get my info")
+        let resp = await axios.get('http://127.0.0.1:5173/ucet', {
+            headers: {
+              Authorization: `Bearer ${getToken()}`
+            }
         })
         console.log(resp)
         this.info = resp.data
         
-      }catch{
-
+      }catch(e){
+        this.$router.push('/prihlaseni');
+        console.log(e)
       }
     },
   }
