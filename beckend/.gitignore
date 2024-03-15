@@ -1,4 +1,7 @@
-venv
+.venv
+# pain in the ass
+app 
+# pain in the ass
 test.py
 users.db
 *.pyc

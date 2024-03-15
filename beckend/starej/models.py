@@ -4,8 +4,8 @@ class User(BaseModel):
     id: int
     email: str
     hashed_password: str
-    disabled: bool
     levels: int
+    aktivni: bool
 
 class FormData(BaseModel):
     email: str

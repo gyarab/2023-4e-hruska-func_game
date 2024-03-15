@@ -4,7 +4,9 @@ from manage_data import hash_password
 con = sqlite3.connect("users.db")
 cur = con.cursor()
 #""" #if delete needed
-cur.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL, hashed_password VARCHAR(255) NOT NULL, levels INTEGER);")
+
+cur.execute("DROP TABLE users;")
+cur.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255) NOT NULL, hashed_password VARCHAR(255) NOT NULL, levels INTEGER, aktivni BOOLEAN DEFAULT TRUE);")
 
 users_data = [
     ('user1', hash_password('password1'), 0),

@@ -65,7 +65,7 @@ export default {
   methods: {
     async requestData() { //test api
       try {
-        const response = await axios.get('http://127.0.0.1:5173/');
+        const response = await axios.get('/');
         console.log(`[response] ${response}`)
         this.api_msg = response.data.message;
       } catch (error) {

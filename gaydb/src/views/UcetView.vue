@@ -8,8 +8,12 @@
 </template>
   
 <script>
-import { getToken } from '../vars.vue'
 import axios from 'axios'
+let prihlasen = false
+if (localStorage.getItem("token") != null) {
+  prihlasen = true
+} 
+
 export default {
   data() {
     return {
@@ -34,21 +38,22 @@ export default {
     },
     logout(){
       localStorage.removeItem("token")
+      this.prihlasen = false
       this.$router.push('/prihlaseni');
     },
     async getMyInfo(){
       try{
         console.log("in get my info")
-        let resp = await axios.get('http://127.0.0.1:5173/ucet', {
+        let resp = await axios.get('/ucet', {
             headers: {
-              Authorization: `Bearer ${getToken()}`
+              Authorization: localStorage.getItem("token")
             }
         })
         console.log(resp)
         this.info = resp.data
         
       }catch(e){
-        this.$router.push('/prihlaseni');
+        //this.$router.push('/prihlaseni');
         console.log(e)
       }
     },

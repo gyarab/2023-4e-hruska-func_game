@@ -1,6 +1,4 @@
-fastapi       
+fastapi
 uvicorn
-python-multipart
-python-jose[cryptography]
-bcrypt==4.0.1
-passlib[bcrypt]
+bcrypt
+pyjwt

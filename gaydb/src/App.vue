@@ -1,9 +1,5 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-let prihlasen = false
-if (localStorage.getItem("token")){
-  prihlasen = true
-}
 
 </script>
 

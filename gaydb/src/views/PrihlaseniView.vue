@@ -4,50 +4,45 @@ import axios from 'axios'
 export default {
     data() {
         return {
-            formData: {
-                email: "",
-                password: "",
-            },
-            spatneHeslo: false,
-            spatnyEmail: false,
+            username: "",
+            password: "",
+            spatnePassword: false,
+            spatnyUsername: false,
             errors: [],
             showError: false,
         }
     },
     methods: {
         login(e){
+            console.log("posíláááám")
             e.preventDefault()
-            console.log(this.email, this.password)
-            if (!this.email.length > 5){
-                this.spatnyEmail = true
+            console.log(this.username, this.password)
+            if (!this.username.length > 5){
+                this.spatnyUsername = true
             } else if (!this.password){ //nic nenapsal - snad
-                this.spatneHeslo = true
+                this.spatnePassword = true
             }
-            if (this.spatnyEmail || this.spatneHeslo) return //nic se nestane
+            if (this.spatnyUsername || this.spatnePassword) return //nic se nestane
             
-            const { email, password } = this.formData;
-
-            // Create FormData object
-            const formData = new FormData();
-            formData.append('username', this.email);
-            formData.append('password', this.password);
-
-            axios.post('http://127.0.0.1:5173/prihlaseni', formData)
+            axios.post('/prihlaseni', {
+                "username": this.username,
+                "password": this.password,
+            })
             .then(response => {
                 //localStorage.setItem("token_type",response.data.token_type)
-                localStorage.setItem("token",response.data.access_token)
+                localStorage.setItem("token", response.data.token)
                 this.$router.push('/ucet');
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.log('Error:', error);
             });
 
             
         },
         zmena(){
             console.log("in zmena")
-            this.spatnyEmail = false
-            this.spatneHeslo = false
+            this.spatnyUsername = false
+            this.spatnePassword = false
         },
         prihlasitOnSuccess(){
 
@@ -62,8 +57,8 @@ export default {
     <div class="op">
         <div class="kontejner_login">
             <form class="login_form">
-                <label class="label" for="uname">Email:</label>
-                <input class="text_input" name="uname" type="text" v-model="email" placeholder="Zadejte email"/>
+                <label class="label" for="uname">Jmeno:</label>
+                <input class="text_input" name="uname" type="text" v-model="username" placeholder="Zadejte email"/>
 
                 <label class="label" for="password">Heslo:</label>
                 <input class="text_input" name="password" type="password" v-model="password" placeholder="Zadejte heslo"/>
