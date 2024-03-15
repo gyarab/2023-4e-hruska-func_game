@@ -2,7 +2,9 @@
     <div class="kontejner">
       <h1>Můj účet</h1>
       <p>token: {{ token }}</p>
-      <p>my data: {{ info }}</p>
+      <div id="items">
+        <p name="userinfo" v-for="(l, d) in this.res"><b style="font-size: 1.2em;">{{ d }}:</b> <p>{{ l }}</p></p>
+      </div>
       <button v-on:click="logout" class="log-out">odhlásit se</button>
     </div>
 </template>
@@ -19,11 +21,7 @@ export default {
     return {
       token: "",
       token_type: "",
-      info: {
-        username: "",
-        levels: null,
-        win_percentage: null,
-      }
+      res: null
     };
     
   },
@@ -49,8 +47,7 @@ export default {
               Authorization: localStorage.getItem("token")
             }
         })
-        console.log(resp)
-        this.info = resp.data
+        this.res = resp.data
         
       }catch(e){
         //this.$router.push('/prihlaseni');
@@ -62,6 +59,13 @@ export default {
 </script>
 
 <style>
+#items {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+
 p {
     max-width: 800px;
     word-wrap: break-word;

@@ -17,7 +17,7 @@ def porovnej_heslo(heslo_k_porovnani: bytes, hash_heslo_z_db: bytes) -> bool:
 def token_respose(jmeno: str) -> dict:
     obsah = {
         "jmeno": jmeno,
-        "exp": datetime.datetime.now(tz=datetime.timezone.utc).timestamp() + 5, #14 * 24 * 60 * 60
+        "exp": datetime.datetime.now(tz=datetime.timezone.utc).timestamp() + 14 * 24 * 60 * 60, #14 * 24 * 60 * 60
     }
     encoded_jwt = jwt.encode(obsah, SECRET_KEY)
     return {"token": encoded_jwt}

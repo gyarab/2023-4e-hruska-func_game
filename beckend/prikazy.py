@@ -16,5 +16,5 @@ def get_user(jmeno: str = "", id: int = -1) -> User:
         return None
     
     cur.close()
-
+    print(*user_row)
     return User(*user_row)
