@@ -50,6 +50,7 @@ h1 {
     color: white;
     width: 5em;
     font-size: 15px;
+    padding: 5px;
     height: 2.5em;
     border-radius: 5px;
     background-color: var(--func-input-bg);
@@ -101,4 +102,8 @@ h1 {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+
+label {
+    padding: 7px;
 }

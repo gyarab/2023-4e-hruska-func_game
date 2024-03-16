@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-
+//import { prihlasen } from '@vitejs/plugin-vue'
 </script>
 
 <template>
