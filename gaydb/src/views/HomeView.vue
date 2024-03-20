@@ -1,27 +1,15 @@
 <template>
   <h1 class="nadpis">This is homepage</h1>
   <div id="home_kontejner">
-    <div id="test_api">
-      <h1>Beckend srandy:</h1>
-      <button id="activator" v-on:click="requestData">get data</button>
-      <p> Message: {{ this.api_msg }} </p>
-    </div>
     <div id="test_server">
       <h1>Server srandy</h1>
       <input class="text_input" id="text_server" v-model="input_data" form="text" placeholder="pošlete zprávu serveru" />
-      <button id="activator" v-on:click="sendMsg">send msg to server</button>
-      <p>Server response: {{ this.server_response }}</p>
+      <button id="activator" v-on:click="sendMessage">send msg to server</button>
+      <p v-for="s in server_response">Server response: {{ s }}</p>
     </div>
   </div>
 </template>
 <style scoped>
-#test_api {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-  font-size: 2em;
-}
 
 #test_server {
   display: flex;
@@ -48,67 +36,37 @@
 </style>
 
 <script>
-import axios from "axios";
-let socket = new WebSocket("ws://localhost:8080");
-
 export default {
   data() {
     return {
-      api_msg: "",
-      server_response: "",
+      server_response: [],
       input_data: "",
+      ws: null,
     }
   },
   mounted() {
-
+    this.ws = new WebSocket("ws://127.0.0.1:8000/"); 
+    this.ws.onmessage = (event) => {
+      let a = JSON.parse(event.data)
+      console.log(a.data)
+      this.server_response = a.data
+      console.log(this.print_msgs(this.server_response))
+    }
   },
   methods: {
-    async requestData() { //test api
-      try {
-        const response = await axios.get('/');
-        console.log(`[response] ${response}`)
-        this.api_msg = response.data.message;
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        this.api_msg = 'Error fetching data';
-      }
+    sendMessage(event) {
+        this.ws.send(this.input_data)
+        console.log(`[SENDING] data: ${this.input_data}`)
+        //input.value = ''
+        event.preventDefault()
     },
-    connectToServer() { //test server
-      socket.onopen = function(e) {
-        socket.send("Connection to the server from vue")
+    print_msgs(a){
+      let s = ""
+      for (let i = 0; i < a.length; i++){
+        s += a[i] + ", "
       }
-      socket.onclose = function(event) {
-        if (event.wasClean) {
-          console.log(`[Frontend] clean conn close, code= ${event.code}`)
-        } else {
-          console.log(`[Frontend] conn died`)
-        }
-      }
-
-      socket.onerror = function(error) {
-        console.log(`[Frontend] error: ${error}`)
-      }
-      socket.addEventListener("mesasge", (message) => {
-        console.log(`[Frontend] displaying data from server ${message.data}`)
-        this.server_response = message.data;
-      });
-
-    },
-    sendMsg() { //test server
-      this.connectToServer();
-      
-      const msg = {
-        type: "message",
-        text: document.getElementById("text_server").value,
-      }
-      console.log(`[Frontend] displaying sended data: ${msg.text}`)
-      socket.send(msg.text);
-
-      socket.onmessage = (event) => {
-        this.server_response = event.data
-      }
+      return s
     }
-    
   }
 }
 </script>

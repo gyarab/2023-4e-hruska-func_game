@@ -3,6 +3,8 @@ const wss = new WebSocket.Server({port: 8080});
 
 console.log("[STARTING] the server has started...")
 
+arr = []
+
 wss.on("connection", ws => {
     console.log("[Beckend] New client connected");
     
@@ -12,11 +14,11 @@ wss.on("connection", ws => {
             const data = parseInt(message);
             const response = data * 2;
             console.log(`[Beckend] sending data: ${JSON.stringify(response)}`)
-            ws.send(JSON.stringify(response));
-            //const input = JSON.parse(data);
-            //console.log(input)
-            //let num = parseInt(data.message);
-            //ws.send(num*2);
+            add_item(`${JSON.stringify(response)}`)
+            display_arr(get_arr());
+            ws.send(JSON.stringify({"message": "ok", "data": get_arr()}));
+            
+            
         } catch(err) {
             ws.send("not a num")
         }
@@ -26,3 +28,19 @@ wss.on("connection", ws => {
         console.log("Client has disconnected");
     });
 });
+
+function add_item(item){
+    a = get_arr();
+    a[a.length] = item
+
+}
+function get_arr(){
+    return arr
+}
+function display_arr(a){
+    let s = ""
+    for(let i = 0; i < a.length; i++){
+        s += a[i] + ", "
+    }
+    console.log(s)
+}

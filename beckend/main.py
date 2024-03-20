@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket
 import auth
 import prikazy
 from modely import LoginARegisterBody
@@ -21,6 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+arr = []
 
 @app.post("/prihlaseni")
 async def login(body: LoginARegisterBody):
@@ -50,3 +51,13 @@ async def ucet(req: Request):
         raise HTTPException(status_code=401, detail="token je starej")
 
     return prikazy.get_user(username)
+
+@app.websocket("/")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    print("[Beckend] New client connected")
+    while True:
+        data = await websocket.receive_text()
+        arr.append(data)
+        await websocket.send_json({"data": arr})
+        print(arr)

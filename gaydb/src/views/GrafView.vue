@@ -17,25 +17,32 @@ export default {
         this.ctx = this.canvas.getContext("2d");
         this.ctxL = this.canvasL.getContext("2d");
         this.ctxR = this.canvasR.getContext("2d");
-        this.draw_axes_and_field(this.ctx, this.ctxL, this.ctxR);
-    },             //FIXME vytvořit překážky - metoda
+        this.draw_left_and_right_canvas(this.ctxL, this.ctxR)
+        this.draw_axes_and_field(this.ctx);
+    }, 
     methods: {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
         draw_graph(e) {
             //e.preventDefault();
-            const lower_it_man = this.get_lowering_gradient(this.selectedOption)
             let w = this.canvas.width;
             let h = this.canvas.height;
-            //const scaleX = 1;
-            //const scaleY = 1;
-            //this.ctx.scale(scaleX, scaleY);
             this.ctx.strokeStyle = "red";
             this.ctx.lineWidth = 3;
 
             this.ctx.beginPath(); //kreslení grafu
-            for (let i = -w/2; i < w/2; i += .1) {
+            for (let i = 0; i < w; i += .1) {
                 let y = eval(this.calculate_y(i, this.function_input))
-                let [grafX, grafY] = this.konvertor(i*(w/12)/1.04 + w*lower_it_man, y*(h/8)/1.04 + h*lower_it_man) //1.04 - dont judge me
+                let [x1, y1] = this.konvertor(i, y)
+                if (this.collided(y)){
+                    this.ctx.stroke();
+                    if (y > this.canvas.height){
+                        this.draw_collision(this.ctx, x1, 0);
+                    }else if(y < -this.canvas.height/2){
+                        this.draw_collision(this.ctx, i, this.canvas.height);
+                    }
+                    break;
+                }
+                let [grafX, grafY] = this.konvertor(i*(w/12)/1.04, y*(h/8)/1.04) //1.04 - dont judge me
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
             }
@@ -43,11 +50,9 @@ export default {
             this.ctx.stroke();
             console.log("graph done");
         },
-        draw_axes_and_field(ctx, ctxL, ctxR) {
+        draw_axes_and_field(ctx) {
             //vars
             let h = this.canvas.height; let w = this.canvas.width;
-            let hL = this.canvasL.height; let wL = this.canvasL.width;
-            let hR = this.canvasR.height; let wR = this.canvasR.width
             let x0 = w / 2;
             let y0 = h / 2;
             let xmin = 0;
@@ -68,34 +73,15 @@ export default {
                 ctx.moveTo(0, i); ctx.lineTo(w, i);
             }
             ctx.stroke();
-            //left canvas rect / lines
-            ctxL.fillStyle = `#D3C4E3`; //levej červenej //#d67cdb //`#DCABDF`
-            ctxL.fillRect(0, 0, 1000, 1500);
-            ctxL.lineWidth = 5;
-            ctxL.strokeStyle = "red";
-            for (let i = 1; i < 4; i++){
-                ctxL.beginPath();
-                ctxL.moveTo(0, i*hL/4);
-                ctxL.lineTo(wL, i*hL/4);
-                ctxL.stroke();   
-            }
-            //right canvas rect / lines
-            ctxR.fillStyle = `#8F95D3`; //pravej modrej
-            ctxR.fillRect(0, 0, 1000, 1500);
-            ctxR.lineWidth = 5;
-            ctxR.strokeStyle = "blue";
-            for (let i = 1; i < 4; i++){
-                ctxR.beginPath();
-                ctxR.moveTo(0, i*hL/4);
-                ctxR.lineTo(wL, i*hL/4);
-                ctxR.stroke();   
-            }
-
-            console.log('[AXES] done...');
         },
         konvertor(x, y) { //graph cords
             let y2 = (-y + this.canvas.height / 2);  
-            let x2 = (x + this.canvas.width / 2);
+            let x2 = (x);// + this.canvas.width / 2);
+            if(this.get_lowering_gradient(this.selectedOption) == -2){
+                y2 -= this.canvas.height/4
+            }else if (this.get_lowering_gradient(this.selectedOption) == -1){
+                y2 += this.canvas.height/4
+            }
             return [x2, y2];
         },
         calculate_y(x, func) { //FIXME;
@@ -104,9 +90,53 @@ export default {
             //https://mathjs.org/docs/reference/functions.html
         },
         get_lowering_gradient(s){
+            //mid default
             if (s == "top") return -2 //start +h/4, +w/4
-            else if (s == "bottom") return -1 //start -h/4, -w/4
-            else return 0 //start 0*h/2, 0*w/2
+            else return -1 //start -h/4, -w/4 //bottom
+        },
+        clean_canvas(ctx){
+            //ctx.clearRect(0,0,ctx.width, ctx.height)
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.draw_axes_and_field(ctx)
+        },
+        draw_left_and_right_canvas(ctxL, ctxR){
+            //left canvas rect / lines
+            let h = this.canvasL.height; let w = this.canvasL.width;
+            let ctxs = [ctxL, ctxR]
+            for (let x = 0; x < 2; x++){
+                if(!x){ //nebudu to prohazovat
+                    ctxs[x].fillStyle = `#D3C4E3`; //levej canvas
+                    ctxs[x].strokeStyle = "red";
+                }else{
+                    ctxs[x].fillStyle = `#8F95D3`; //pravej canvas
+                    ctxs[x].strokeStyle = "blue";
+                }
+
+                ctxs[x].fillRect(0, 0, 1000, 1500);
+                ctxs[x].lineWidth = 5;
+                for (let i = 1; i < 4; i++){
+                    ctxs[x].beginPath();
+                    ctxs[x].moveTo(0, i*h/4);
+                    ctxs[x].lineTo(w, i*h/4);
+                    ctxs[x].stroke();   
+                }
+            }
+        },
+        collided(y){
+            if (y > this.canvas.height || y < -this.canvas.height/2){
+                return true;
+            }
+            return false
+        },
+        draw_collision(ctx, x, y){
+            ctx.beginPath();
+            ctx.strokeStyle = "red"
+            ctx.fillStyle = "red"
+            console.log(x,y)
+            ctx.arc(x, y, 40, 0, 2 * Math.PI);
+            ctx.fill()
+            ctx.stroke();
+            console.log("collision made")
         }
     }
 }
@@ -117,17 +147,11 @@ export default {
             <div class="radio_kontejner">
             <fieldset id="radios">
                 <input type="text" v-model="function_input" placeholder="Insert function" class="text_input">
-                <legend>Choose an option:</legend>
+                <legend>Insert func and choose startig point:</legend>
                     <div id="singles">
                         <label>
                             <input type="radio" v-model="selectedOption" value="top"><br>
                             Top
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            <input type="radio" v-model="selectedOption" value="mid">
-                            Mid
                         </label>
                     </div>
                     <div>
@@ -140,6 +164,7 @@ export default {
                 </fieldset>
             </div>
         </form>
+        <button class="btn" v-on:click="clean_canvas(this.ctx)">Clean canvas</button>
             
 
         <div class="graf_div">
