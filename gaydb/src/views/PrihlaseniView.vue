@@ -10,19 +10,27 @@ export default {
             spatnyUsername: false,
             errors: [],
             showError: false,
+            prihlasen: null,
         }
+    },
+    mounted() {
+        this.prihlasen = false
+        if (localStorage.getItem("token") != null) {
+            console.log("logged")
+            this.prihlasen = true
+        } 
     },
     methods: {
         login(e){
             console.log("posíláááám")
             e.preventDefault()
-            console.log(this.username, this.password)
-            if (!this.username.length > 5){
+            if (this.username.length < 5){
                 this.spatnyUsername = true
-            } else if (!this.password){ //nic nenapsal - snad
+                this.errors.push("zadejte jméno")
+            } else if (this.password.length < 5){ //nic nenapsal - snad
                 this.spatneHeslo = true
             }
-            if (this.spatnyUsername || this.spatneHeslo) return //nic se nestane
+            //if (this.spatnyUsername || this.spatneHeslo) return //nic se nestane
             
             axios.post('/prihlaseni', {
                 "username": this.username,
@@ -34,25 +42,28 @@ export default {
                 this.$router.push('/ucet');
             })
             .catch(error => {
-                console.log("spatne heslo??")
-                //console.log('Error:', error);
                 this.errors.push("Špatné heslo")
+                this.spatneHeslo = true
             });
-
+            console.log("watafak ",this.errors)
             
-        },
-        zmena(){
-            console.log("in zmena")
-            this.spatnyUsername = false
-            this.spatneHeslo = false
         },
         prihlasitOnSuccess(){
 
         },
+        zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
+            spatnyEmail.value = false
+            spatnyHeslo.value = false
+        },
         checkUdaje(udaje){
-            if (udaje === "email" && this.usernameme) this.spatnyEmail = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(this.username); //valid email
-            else if (udaje === "heslo" && this.password !== undefined) this.spatneHeslo = !/^(?=.*[a-zA-Z]).{5,128}$/.test(this.password); //aspoň 5 znaků
-            if(udaje === "email" && this.username.length === 0) this.spatnyEmail = true
+            console.log("more");
+            if (udaje === "heslo" && this.password !== undefined){
+                this.spatneHeslo = !/^(?=.*[a-zA-Z]).{5,128}$/.test(this.password); //aspoň 5 znaků
+            }
+            else if(udaje === "username" && this.username.length === 0){
+                this.spatnyUsername = true;
+            } 
+                
             console.log(this.spatneHeslo, this.spatnyUsername)
         },
     }
@@ -66,25 +77,32 @@ export default {
         <div class="kontejner_login">
             <form class="login_form">
                 <label class="label" for="uname">Jmeno:</label>
-                <input :class="{wrong_input: spatnyUsername, text_input: !spatnyUsername}" name="uname" @:input="checkUdaje('email')"
-                 type="text" v-model="username" placeholder="Zadejte email"/>
+                <input :class="{wrong_input: spatnyUsername, text_input: !spatnyUsername}" name="uname" @:input="checkUdaje('username')"
+                :oninput="zmena"  type="text" v-model="username" placeholder="Zadejte email"/>
 
                 <label class="label" for="password">Heslo:</label>
-                <input :class="{wrong_input: spatneHeslo, text_input: !spatnyUsername}" name="password" type="password" @:input="checkUdaje('email')" 
-                 v-model="password" placeholder="Zadejte heslo"/>
+                <input :class="{wrong_input: spatneHeslo, text_input: !spatneHeslo}" name="password" type="password" @:input="checkUdaje('heslo')" 
+                :oninput="zmena" v-model="password" placeholder="Zadejte heslo"/>
 
                 <button v-on:click="login" class="btn" type="submit">Přihlásit</button>
                 <hr class="herka">
                 <a href="/registrace" id="podform">Založení účtu: Registrace</a>
+                <p v-for="p in errors">{{ p }}</p>
             </form>
         </div>
     </div>
 </template>
 
 <style>
+p {
+    display: flex;
+    color: white;
+    font-size: 1.2em;
+    justify-content: center;
+}
+
 .wrong_input{
     border: red solid 2px;
-
 }
 
 .kontejner_login {

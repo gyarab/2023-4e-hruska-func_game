@@ -1,6 +1,10 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 //import { prihlasen } from '@vitejs/plugin-vue'
+let prihlasen = false
+if (localStorage.getItem("token") != null) {
+  prihlasen = true
+} 
 </script>
 
 <template>

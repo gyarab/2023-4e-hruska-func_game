@@ -10,23 +10,23 @@
 </template>
   
 <script>
-import axios from 'axios'
-let prihlasen = false
-if (localStorage.getItem("token") != null) {
-  prihlasen = true
-} 
+import axios from 'axios' 
 
 export default {
   data() {
     return {
       token: "",
       token_type: "",
-      res: null
+      res: null,
+      prihlasen: null,
     };
     
   },
   mounted() {
-    this.get_token_from_storage();
+    this.prihlasen = false
+    if (this.get_token_from_storage()){
+      this.prihlasen = true
+    }
     this.getMyInfo();
   },
   methods: {
