@@ -6,7 +6,7 @@ export default {
         return {
             username: "",
             password: "",
-            spatnePassword: false,
+            spatneHeslo: false,
             spatnyUsername: false,
             errors: [],
             showError: false,
@@ -20,9 +20,9 @@ export default {
             if (!this.username.length > 5){
                 this.spatnyUsername = true
             } else if (!this.password){ //nic nenapsal - snad
-                this.spatnePassword = true
+                this.spatneHeslo = true
             }
-            if (this.spatnyUsername || this.spatnePassword) return //nic se nestane
+            if (this.spatnyUsername || this.spatneHeslo) return //nic se nestane
             
             axios.post('/prihlaseni', {
                 "username": this.username,
@@ -34,7 +34,9 @@ export default {
                 this.$router.push('/ucet');
             })
             .catch(error => {
-                console.log('Error:', error);
+                console.log("spatne heslo??")
+                //console.log('Error:', error);
+                this.errors.push("Špatné heslo")
             });
 
             
@@ -42,11 +44,17 @@ export default {
         zmena(){
             console.log("in zmena")
             this.spatnyUsername = false
-            this.spatnePassword = false
+            this.spatneHeslo = false
         },
         prihlasitOnSuccess(){
 
-        }
+        },
+        checkUdaje(udaje){
+            if (udaje === "email" && this.usernameme) this.spatnyEmail = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(this.username); //valid email
+            else if (udaje === "heslo" && this.password !== undefined) this.spatneHeslo = !/^(?=.*[a-zA-Z]).{5,128}$/.test(this.password); //aspoň 5 znaků
+            if(udaje === "email" && this.username.length === 0) this.spatnyEmail = true
+            console.log(this.spatneHeslo, this.spatnyUsername)
+        },
     }
 }
 
@@ -58,10 +66,12 @@ export default {
         <div class="kontejner_login">
             <form class="login_form">
                 <label class="label" for="uname">Jmeno:</label>
-                <input class="text_input" name="uname" type="text" v-model="username" placeholder="Zadejte email"/>
+                <input :class="{wrong_input: spatnyUsername, text_input: !spatnyUsername}" name="uname" @:input="checkUdaje('email')"
+                 type="text" v-model="username" placeholder="Zadejte email"/>
 
                 <label class="label" for="password">Heslo:</label>
-                <input class="text_input" name="password" type="password" v-model="password" placeholder="Zadejte heslo"/>
+                <input :class="{wrong_input: spatneHeslo, text_input: !spatnyUsername}" name="password" type="password" @:input="checkUdaje('email')" 
+                 v-model="password" placeholder="Zadejte heslo"/>
 
                 <button v-on:click="login" class="btn" type="submit">Přihlásit</button>
                 <hr class="herka">
@@ -72,6 +82,11 @@ export default {
 </template>
 
 <style>
+.wrong_input{
+    border: red solid 2px;
+
+}
+
 .kontejner_login {
     display: flex;
     flex-direction: column;
