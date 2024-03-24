@@ -1,5 +1,6 @@
 import sqlite3
 from modely import User
+import math, random
 
 con = sqlite3.connect("databaze.sqlite")
 
@@ -18,3 +19,9 @@ def get_user(jmeno: str = "", id: int = -1) -> User:
     cur.close()
     print(*user_row)
     return User(*user_row)
+
+def generate_game_id(groups):
+    while True:
+        game_id = str(random.randint(0, 99999999)).zfill(8)
+        if game_id not in groups:
+            return game_id
