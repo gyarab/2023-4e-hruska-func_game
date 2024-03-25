@@ -22,6 +22,6 @@ def get_user(jmeno: str = "", id: int = -1) -> User:
 
 def generate_game_id(groups):
     while True:
-        game_id = str(random.randint(0, 99999999)).zfill(8)
+        game_id = str(random.randint(0, 999999)).zfill(6)
         if game_id not in groups:
             return game_id

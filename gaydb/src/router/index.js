@@ -26,7 +26,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/graf',
+      path: '/graf/:gameId',
       name: 'graf',
       component: GrafView,
       meta: {

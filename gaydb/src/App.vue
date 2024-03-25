@@ -18,7 +18,7 @@ if (localStorage.getItem("token") != null) {
           <RouterLink to="/about">About</RouterLink>
         </div>
         <div class="link-kontejner">
-          <RouterLink to="/graf">Graf</RouterLink>
+          <RouterLink to="'/graf/' + gameId">Graf</RouterLink>
         </div>
         <div v-if="!prihlasen" class="link-kontejner">
           <RouterLink to="/prihlaseni">Přihlášení</RouterLink>

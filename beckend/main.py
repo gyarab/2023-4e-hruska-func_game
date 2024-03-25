@@ -56,19 +56,29 @@ async def ucet(req: Request):
 
     return prikazy.get_user(username)
 
-"""
-@app.websocket("/")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    print("[Beckend] New client connected")
-    while True:
-        data = await websocket.receive_text()
-        arr.append(data)
-        await websocket.send_json({"data": arr})
-        print(arr)
-"""
+groups = {game_id: [] for game_id in range(1, 10000)}
 
-groups = {}
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
+
+
 @app.websocket("/")
 async def handle_websocket(websocket: WebSocket):
     await websocket.accept()
@@ -79,9 +89,10 @@ async def handle_websocket(websocket: WebSocket):
             data = await websocket.receive_text()
             message = data.strip()
             print(f"Received message: {message}")
-            if not game_id and len(message) == 8 and message.isdigit() and message in groups: #má gameId (digit) --> conn to gane
+            if not game_id and len(message) == 6 and message.isdigit() and message in groups: #má gameId (digit) --> conn to gane
                 game_id = message
                 groups[game_id].append(websocket)
+                print(websocket)
                 print(f"Player connected to group {game_id}")
                 await websocket.send_json({"message": "connected", "data": game_id})
 
@@ -113,26 +124,16 @@ async def handle_websocket(websocket: WebSocket):
                 del groups[game_id]
                 print(f"Group {game_id} deleted")
 
-@app.websocket("/{gameId}")
-async def websocket_endpoint(websocket: WebSocket, gameId: str):
-    await websocket.accept()
-    if gameId not in groups:
-        groups[gameId] = [websocket]
-    else:
-        if len(groups[gameId]) >= 2:
-            await websocket.close(code=1001)
-            return
 
-        groups[gameId].append(websocket)
 
+@app.websocket("/graf/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int):
+    await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
-            for client in groups[gameId]:
-                if client != websocket:
-                    await client.send_text(f"Received message: {data}")
-    except:
-        if gameId in groups:
-            groups[gameId].remove(websocket)
-            if not groups[gameId]:
-                del groups[gameId]
+            await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.broadcast(f"Client #{client_id} says: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client #{client_id} left the chat")
