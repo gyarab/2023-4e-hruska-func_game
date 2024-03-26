@@ -87,12 +87,12 @@ async def handle_websocket(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
+            print(data)
             message = data.strip()
             print(f"Received message: {message}")
             if not game_id and len(message) == 6 and message.isdigit() and message in groups: #má gameId (digit) --> conn to gane
                 game_id = message
                 groups[game_id].append(websocket)
-                print(websocket)
                 print(f"Player connected to group {game_id}")
                 await websocket.send_json({"message": "connected", "data": game_id})
 
@@ -109,7 +109,7 @@ async def handle_websocket(websocket: WebSocket):
                         await player.send_json({"message": "data", "data" : message})
 
             else:
-                await player.send_json({"message": "chyba", "data" : "něco se posralo"})
+                await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
 
     except WebSocketDisconnect:
         if game_id and groups.get(game_id):
@@ -128,10 +128,12 @@ async def handle_websocket(websocket: WebSocket):
 
 @app.websocket("/graf/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
+    print("in websocket /graf/hovno")
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
+            print(data)
             await manager.send_personal_message(f"You wrote: {data}", websocket)
             await manager.broadcast(f"Client #{client_id} says: {data}")
     except WebSocketDisconnect:

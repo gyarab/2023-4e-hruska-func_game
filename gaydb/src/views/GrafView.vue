@@ -7,10 +7,17 @@ export default {
             canvas: "",
             ctx: "",
             textInput: '',
-            selectedOption: ''
+            selectedOption: '',
+            ws: null,
         }
     },
     mounted() {
+        let game_id = localStorage.getItem("gameId")
+        this.ws = new WebSocket("ws://127.0.0.1:8000/graf/?game_id=" + game_id); 
+        this.ws.onmessage = function(event) {
+            let a = JSON.parse(event.data)
+            console.log(a)
+        };
         this.canvas = document.getElementById("graf");
         this.canvasL = document.getElementById("levej_graf");
         this.canvasR = document.getElementById("pravej_graf");
@@ -22,6 +29,10 @@ export default {
     }, 
     methods: {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
+        sendMessage() {
+            this.ws.send(this.input_data)
+            console.log(`[SENDING] data: ${this.input_data}`)
+        },        
         draw_graph(e) {
             //e.preventDefault();
             let w = this.canvas.width;
@@ -92,6 +103,7 @@ export default {
         get_lowering_gradient(s){
             //mid default
             if (s == "top") return -2 //start +h/4, +w/4
+            else if(s == "mid") return 0
             else return -1 //start -h/4, -w/4 //bottom
         },
         clean_canvas(ctx){
@@ -137,6 +149,12 @@ export default {
             ctx.fill()
             ctx.stroke();
             console.log("collision made")
+        },
+        send_message() {
+            this.ws.onmessage = function(){
+                var message = this.function_input;
+                this.ws.send(message)
+            }
         }
     }
 }
@@ -156,11 +174,18 @@ export default {
                     </div>
                     <div>
                         <label>
+                            <input type="radio" v-model="selectedOption" value="mid">
+                            mid
+                        </label>
+                    </div>
+                    <div>
+                        <label>
                             <input type="radio" v-model="selectedOption" value="bottom">
                             Bottom
                         </label>
                     </div>
                     <button v-on:click="draw_graph()" class="btn" type="button">submit</button>
+                    <button v-on:click="sendMessage()" class="btn" type="button">send message</button>
                 </fieldset>
             </div>
         </form>

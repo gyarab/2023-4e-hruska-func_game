@@ -66,6 +66,7 @@ export default {
         //něco se posralo idk co, ale teď je to wrong input - neposílám gameId / 1 / -1
         this.server_response = `${a["message"]} ${a["data"]}`
       }
+      localStorage.setItem("gameId", a["data"])
       console.log(this.server_response)
     }
   },
