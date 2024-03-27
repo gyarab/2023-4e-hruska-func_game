@@ -12,11 +12,18 @@ export default {
         }
     },
     mounted() {
-        let game_id = localStorage.getItem("gameId")
-        this.ws = new WebSocket("ws://127.0.0.1:8000/graf/?game_id=" + game_id); 
+        let gameId = localStorage.getItem("gameId")
+        let token = localStorage.getItem("token")
+        if (gameId === null){
+            console.log("no gameID")
+            this.$router.push("/");
+        }
+        this.ws = new WebSocket(`ws://127.0.0.1:8000/graf/?gameId=${gameId}`);
+        
         this.ws.onmessage = function(event) {
             let a = JSON.parse(event.data)
             console.log(a)
+            this.ws.send(this.input_data)
         };
         this.canvas = document.getElementById("graf");
         this.canvasL = document.getElementById("levej_graf");
@@ -153,6 +160,7 @@ export default {
         send_message() {
             this.ws.onmessage = function(){
                 var message = this.function_input;
+                console.log(message)
                 this.ws.send(message)
             }
         }

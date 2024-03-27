@@ -12,13 +12,13 @@ if (localStorage.getItem("token") != null) {
     <nav id="menu">
       <div id="menu-navs">
         <div class="link-kontejner">
-          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/home">Home</RouterLink>
         </div>
         <div class="link-kontejner">
           <RouterLink to="/about">About</RouterLink>
         </div>
         <div class="link-kontejner">
-          <RouterLink to="'/graf/' + gameId">Graf</RouterLink>
+          <RouterLink to="/graf">Graf</RouterLink>
         </div>
         <div v-if="!prihlasen" class="link-kontejner">
           <RouterLink to="/prihlaseni">Přihlášení</RouterLink>

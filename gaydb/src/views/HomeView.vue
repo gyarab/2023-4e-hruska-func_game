@@ -45,13 +45,18 @@ export default {
     }
   },
   mounted() {
-    this.ws = new WebSocket("ws://127.0.0.1:8000/"); 
+    this.ws = new WebSocket("ws://localhost:8000/home"); 
     this.ws.onmessage = (event) => {
       let a = JSON.parse(event.data)
       if (a["message"] == "gameId"){
         this.server_response = `${a["message"]} ${a["data"]}`
         console.log("new lobby created")
+        console.log("gameId in storage")
+        console.log(this.server_response)
+        localStorage.setItem("gameId", a["data"])
         this.$router.push(`/graf/${a["data"]}`);
+        
+
         //poslat na /{gameId}
       }else if (a["message"] == "data"){
         //dostal jsem data a z toho se musí vykreslit graf a tak dále
@@ -66,8 +71,6 @@ export default {
         //něco se posralo idk co, ale teď je to wrong input - neposílám gameId / 1 / -1
         this.server_response = `${a["message"]} ${a["data"]}`
       }
-      localStorage.setItem("gameId", a["data"])
-      console.log(this.server_response)
     }
   },
   methods: {

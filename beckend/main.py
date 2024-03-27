@@ -1,7 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
-import uvicorn
 import auth
-import asyncio
 import prikazy
 from modely import LoginARegisterBody
 from fastapi.middleware.cors import CORSMiddleware
@@ -56,31 +54,31 @@ async def ucet(req: Request):
 
     return prikazy.get_user(username)
 
-groups = {game_id: [] for game_id in range(1, 10000)}
+groups = {}
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: list[WebSocket] = []
+        self.groups: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.groups.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        self.groups.remove(websocket)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        for connection in self.active_connections:
+        for connection in self.groups:
             await connection.send_text(message)
 
 manager = ConnectionManager()
 
-
-@app.websocket("/")
+@app.websocket("/home")
 async def handle_websocket(websocket: WebSocket):
+    
     await websocket.accept()
     game_id: str | None = None
 
@@ -124,12 +122,12 @@ async def handle_websocket(websocket: WebSocket):
                 del groups[game_id]
                 print(f"Group {game_id} deleted")
 
-
-
-@app.websocket("/graf/{client_id}")
+@app.websocket('/graf')
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     print("in websocket /graf/hovno")
+    print("me here")
     await manager.connect(websocket)
+
     try:
         while True:
             data = await websocket.receive_text()
