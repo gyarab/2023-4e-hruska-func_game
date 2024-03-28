@@ -2,8 +2,8 @@
   <h1 class="nadpis">This is homepage</h1>
   <div id="home_kontejner">
     <div id="test_server">
-      <h1>Server srandy</h1>
-      <!--<input class="text_input" id="text_server" v-model="input_data" form="text" placeholder="pošlete zprávu serveru" /> -->
+      <h1>Enter Lobby</h1>
+      <input class="text_input" style="width: 50%" v-model="username_input" form="text" placeholder="zadejte nickname" />
       <button id="activator" v-on:click="sendMessage">PLAY ONLINE</button>
       <li v-if="server_response">Server response: {{ server_response }}</li>
     </div>
@@ -13,13 +13,15 @@
 
 #test_server {
   display: flex;
+  background-color: var(--login-form-bg);
   flex-direction: column;
   align-items: center;
-  width: 70%;
+  width: 60%;
+  border-radius: 20px;
+  gap: 0.5em;
   margin-top: 25px;
   padding: 10px;
   font-size: 2em;
-  padding: 10px;
 }
 
 #home_kontejner {
@@ -32,11 +34,12 @@
 
 #activator {
   padding: 5px;
-  background-color: red;
+  background-color: var(--func-input-bg);
   border-radius: 5px;
   border-style: none;
   color: white;
-  padding: 5px;
+  padding: 12px;
+  margin: 5px;
 }
 </style>
 
@@ -45,7 +48,7 @@ export default {
   data() {
     return {
       server_response: "",
-      //input_data: "",
+      username_input: "",
       ws: null,
     }
   },
@@ -83,24 +86,10 @@ export default {
   },
   methods: {
     sendMessage(event) {
-      this.ws.send("1") //chce hrát / přidat se do Q
+      this.ws.send(JSON.stringify({"message": "1", "username": this.username_input})) //chce hrát / přidat se do Q
       console.log(`[SENDING] data: ${this.input_data}`)
-      //input.value = ''
       event.preventDefault()
     },
-    /*
-    print_msgs(a){
-      let s = ""
-      for (let i = 0; i < a.length; i++){
-        s += a[i] + ", "
-      }
-      return s
-    },
-    
-    joinQue(){
-      this.ws.send("-1")
-    }
-    */
   }
 }
 </script>

@@ -44,7 +44,7 @@ if (localStorage.getItem("token") != null) {
 }
 
 .link-kontejner {
-  width: 7em;
+  width: 9em;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -57,7 +57,7 @@ if (localStorage.getItem("token") != null) {
 
 #menu {
   display: flex;
-  row-gap: 10px;
+  row-gap: 10%;
   height: var(--vyska-menu);
   user-select: none;
   justify-content: space-between;

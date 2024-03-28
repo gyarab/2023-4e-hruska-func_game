@@ -95,30 +95,35 @@ async def handle_websocket(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            message = data.strip()
+            print(data)
+            a = json.loads(data)
+            message = a["message"]
+            nickname = a["username"]
             print(f"Received message: {message}")
-            if not game_id and len(message) == 6 and message.isdigit() and message in groups: #má gameId (digit) --> conn to game
-                print("1. if")
-                game_id = message
-                groups[game_id].append(websocket)
-                print(f"Player connected to group {game_id}")
-                await websocket.send_json({"message": "connected", "data": game_id})
 
-            elif not game_id and message == '1': #nemá gameId a chce hrát(1) --> generate new gameId
-                print("2. if (1. elif)")
-                game_id = prikazy.generate_game_id(groups)
-                groups[game_id] = [websocket]
-                print(f"New group {game_id} created")
-                print(groups)
-                await websocket.send_json({"message": "gameId", "data" : game_id})
+            if not game_id and message == '1': #nemá gameId a chce hrát(1) --> generate new gameId
+                if len(groups) == 0:    
+                    print("under len(groups) == 0:")
+                    game_id = prikazy.generate_game_id(groups)
+                    groups[game_id] = [websocket]
+                    print(f"New group {game_id} created")
+                    print(groups)
+                    await websocket.send_json({"message": "gameId", "data" : game_id})
+                else:
+                    print("groups",groups[0])
+                    game_id = groups[0]
+                    print(f"Player connected to group {game_id}")   
+                    groups[game_id].append(websocket)
+                    await websocket.send_json({"message": "connected", "data": game_id})
 
-            elif game_id and groups.get(game_id): #má gameId, které je zároveň sesh --> posílají si msgs
-                print(f"Data received from player in group {game_id}: {message}")
-                for player in groups[game_id]:
-                    if player != websocket:
-                        await player.send_json({"message": "data", "data" : message})
+#            elif game_id and groups.get(game_id): #má gameId, které je zároveň sesh --> posílají si msgs
+#                print("[WHERE] 3. if (2. elif)")
+#                print(f"Data received from player in group {game_id}: {message}")
+#                for player in groups[game_id]:
+#                    if player != websocket:
+#                        await player.send_json({"message": "data", "data" : message})
             else:
-                print("last else")
+                print("[WHERE] last else")
                 await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
                 websocket.close(reason="conn v /graf")
 

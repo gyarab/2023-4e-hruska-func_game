@@ -6,7 +6,7 @@
 
 :root {
     --vyska-menu: 60px;
-    --velikost-pisma-menu: 18px;
+    --velikost-pisma-menu: 1.5em;
     --bila: #eef4fc;
     --modra: #395DFC;
     --cervena: #e12928;
@@ -30,6 +30,13 @@ body{
     text-align: center;
     color: var(--bila-soft)
 }
+.pod-nadpis {
+    margin: 10px;
+    font-size: 36px;
+    text-align: center;
+    color: var(--bila-soft)
+}
+
 h1 {
     font-size: 32px;
 }

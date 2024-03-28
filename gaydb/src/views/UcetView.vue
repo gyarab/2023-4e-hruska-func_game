@@ -1,24 +1,30 @@
 <template>
     <div class="kontejner">
-      <h1>Můj účet</h1>
+      <h1 class="nadpis">Můj účet</h1>
       <div id="items">
-        
-        <thead>
-        <tr>
-          <th>Key</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-        <p name="userinfo" v-for="(l, d) in this.res"><b style="font-size: 1.2em;">{{ d }}:</b> <p>{{ l }}</p></p>
+        <table>
+          <thead>
+            <tr>
+              <th class="header">Key<hr></th>
+              <th class="header">Value<hr></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(l, d) in this.res" :d="d">
+              <td>{{ d }}</td>
+              <td>{{ l }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="fake-kontejner">
+        <p class="pod-nadpis">Chceš si zahrát online?</p>
+        <a id="wanna-play" v-bind:href="'/play'">TADY</a>
       </div>
       <button v-on:click="logout" class="log-out">odhlásit se</button>
-      <div id="wanna-play">
-        <h1>v Chceš si zahrát? v</h1>
-        <a v-bind:href="'/play'">TADY</a>
-      </div>
-    </div>
+    </div>s
 </template>
-  
+
 <script>
 import axios from 'axios' 
 
@@ -58,7 +64,7 @@ export default {
             }
         })
         this.res = resp.data
-        
+
       }catch(e){
         //this.$router.push('/prihlaseni');
         console.log(e)
@@ -69,19 +75,55 @@ export default {
 </script>
 
 <style>
+th, td {
+  padding-top: 5px;
+  padding-left: 15px;
+  font-size: 1.2em;
+  color: var(--bila-soft);
+}
+
+.header {
+  padding: 10px;
+}
+
+tr {
+  color: var(--bila-soft);
+}
+
+.fake-kontejner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.23em;
+  height: 25vh;
+  border-radius: 25px;
+  width: 65%;
+  padding: 5px;
+  background-color: var(--login-form-bg);
+}
+
 #items {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.5em;
+  padding: 10px;
+  background-color: var(--login-form-bg);
+  border-radius: 25px;
+  width: 65%;
 }
 
 #wanna-play{
-  display: flex;
   flex-direction: column;
   font-size: 2em;
   align-items: center;
   text-decoration: none;
+  color: white;
+  padding: 7px;
+  background-color: var(--func-input-bg);
+  border-radius: 10px;
 }
 
 p {
@@ -90,9 +132,9 @@ p {
 }
 .log-out {
   padding: 5px;
-  background-color: rgb(255, 55, 72);
+  background-color: rgb(255, 0, 21);
   color: white;
-  font-size: large;
+  font-size: 1.5em;
   border-style: none;
   border-radius: 5px;
 }
