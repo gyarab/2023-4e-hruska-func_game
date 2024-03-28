@@ -7,8 +7,6 @@ from typing import Dict, List
 
 app = FastAPI()
 
-groups: Dict[str, List[WebSocket]] = {}
-
 """
 origins = [
     "http://localhost:5173",
@@ -58,27 +56,32 @@ groups = {}
 
 class ConnectionManager:
     def __init__(self):
-        self.groups: list[WebSocket] = []
+        print("in init")
+        self.group_conns: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
+        print("in connect")
         await websocket.accept()
-        self.groups.append(websocket)
+        self.group_conns.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.groups.remove(websocket)
+        print("in connect")
+        self.group_conns.remove(websocket)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
+        print("in connect")
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        for connection in self.groups:
+        print("in connect")     
+        for connection in self.group_conns:
             await connection.send_text(message)
 
 manager = ConnectionManager()
 
 @app.websocket("/home")
 async def handle_websocket(websocket: WebSocket):
-    
+    print("in home")
     await websocket.accept()
     game_id: str | None = None
 
@@ -89,12 +92,14 @@ async def handle_websocket(websocket: WebSocket):
             message = data.strip()
             print(f"Received message: {message}")
             if not game_id and len(message) == 6 and message.isdigit() and message in groups: #má gameId (digit) --> conn to gane
+                print("1. if")
                 game_id = message
                 groups[game_id].append(websocket)
                 print(f"Player connected to group {game_id}")
                 await websocket.send_json({"message": "connected", "data": game_id})
 
             elif not game_id and message == '1': #nemá gameId a chce hrát(1) --> generate new gameId
+                print("2. if (1. elif)")
                 game_id = prikazy.generate_game_id(groups)
                 groups[game_id] = [websocket]
                 print(f"New group {game_id} created")
@@ -107,9 +112,11 @@ async def handle_websocket(websocket: WebSocket):
                         await player.send_json({"message": "data", "data" : message})
 
             else:
+                print("la+st else")
                 await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
 
     except WebSocketDisconnect:
+        print("in websocket disconnect")
         if game_id and groups.get(game_id):
             index = groups[game_id].index(websocket)
             if index > -1:
@@ -122,7 +129,7 @@ async def handle_websocket(websocket: WebSocket):
                 del groups[game_id]
                 print(f"Group {game_id} deleted")
 
-@app.websocket('/graf')
+@app.websocket('/graf/{client_id}')
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     print("in websocket /graf/hovno")
     print("me here")
