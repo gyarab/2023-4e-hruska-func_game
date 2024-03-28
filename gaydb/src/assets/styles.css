@@ -2,7 +2,6 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-
 }
 
 :root {
@@ -119,4 +118,14 @@ label {
     border-radius: 5px;
     background-color: var(--func-input-bg);
     outline: none;
+}
+
+.kontejner {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    align-items: center;
+    height: 85vh;
+    width: 100%;
+    padding: 20px;
 }

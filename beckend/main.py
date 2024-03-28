@@ -63,27 +63,30 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket):
         print("[WHERE] in connect")
+        print(f"group_conns: {self.group_conns}")
         await websocket.accept()
         self.group_conns.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
         print("[WHERE] in disconnect")
+        print(f"group_conns: {self.group_conns}")
         self.group_conns.remove(websocket)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         print("[WHERE] in send_personal_data")
+        print(f"group_conns: {self.group_conns}")
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
         print("[WHERE] in broadcast")     
         for connection in self.group_conns:
-            print(self.group_conns)
+            print(f"group_conns: {self.group_conns}")
             print(message)
             await connection.send_text(message)
 
 manager = ConnectionManager()
 
-@app.websocket("/home")
+@app.websocket('/play')
 async def handle_websocket(websocket: WebSocket):
     print("in home")
     await websocket.accept()
@@ -92,10 +95,9 @@ async def handle_websocket(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            print(data)
             message = data.strip()
             print(f"Received message: {message}")
-            if not game_id and len(message) == 6 and message.isdigit() and message in groups: #má gameId (digit) --> conn to gane
+            if not game_id and len(message) == 6 and message.isdigit() and message in groups: #má gameId (digit) --> conn to game
                 print("1. if")
                 game_id = message
                 groups[game_id].append(websocket)
@@ -107,6 +109,7 @@ async def handle_websocket(websocket: WebSocket):
                 game_id = prikazy.generate_game_id(groups)
                 groups[game_id] = [websocket]
                 print(f"New group {game_id} created")
+                print(groups)
                 await websocket.send_json({"message": "gameId", "data" : game_id})
 
             elif game_id and groups.get(game_id): #má gameId, které je zároveň sesh --> posílají si msgs
@@ -114,10 +117,10 @@ async def handle_websocket(websocket: WebSocket):
                 for player in groups[game_id]:
                     if player != websocket:
                         await player.send_json({"message": "data", "data" : message})
-
             else:
                 print("last else")
                 await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
+                websocket.close(reason="conn v /graf")
 
     except WebSocketDisconnect:
         print("in websocket disconnect")
@@ -132,10 +135,11 @@ async def handle_websocket(websocket: WebSocket):
             if len(groups[game_id]) == 0:
                 del groups[game_id]
                 print(f"Group {game_id} deleted")
+    #websocket.close()
+    print("groups", groups)
 
 @app.websocket('/graf')
 async def websocket_endpoint(websocket: WebSocket):
-    
 
     await manager.connect(websocket)
     

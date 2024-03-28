@@ -3,8 +3,8 @@
   <div id="home_kontejner">
     <div id="test_server">
       <h1>Server srandy</h1>
-      <input class="text_input" id="text_server" v-model="input_data" form="text" placeholder="pošlete zprávu serveru" />
-      <button id="activator" v-on:click="sendMessage">send msg to server</button>
+      <!--<input class="text_input" id="text_server" v-model="input_data" form="text" placeholder="pošlete zprávu serveru" /> -->
+      <button id="activator" v-on:click="sendMessage">PLAY ONLINE</button>
       <li v-if="server_response">Server response: {{ server_response }}</li>
     </div>
   </div>
@@ -32,6 +32,11 @@
 
 #activator {
   padding: 5px;
+  background-color: red;
+  border-radius: 5px;
+  border-style: none;
+  color: white;
+  padding: 5px;
 }
 </style>
 
@@ -40,14 +45,16 @@ export default {
   data() {
     return {
       server_response: "",
-      input_data: "",
+      //input_data: "",
       ws: null,
     }
   },
   mounted() {
-    this.ws = new WebSocket("ws://localhost:8000/home"); 
+    this.ws = new WebSocket("ws://localhost:8000/play"); 
+
     this.ws.onmessage = (event) => {
       let a = JSON.parse(event.data)
+
       if (a["message"] == "gameId"){
         this.server_response = `${a["message"]} ${a["data"]}`
         console.log("new lobby created")
@@ -76,11 +83,12 @@ export default {
   },
   methods: {
     sendMessage(event) {
-      this.ws.send(this.input_data)
+      this.ws.send("1") //chce hrát / přidat se do Q
       console.log(`[SENDING] data: ${this.input_data}`)
       //input.value = ''
       event.preventDefault()
     },
+    /*
     print_msgs(a){
       let s = ""
       for (let i = 0; i < a.length; i++){
@@ -88,9 +96,11 @@ export default {
       }
       return s
     },
+    
     joinQue(){
       this.ws.send("-1")
     }
+    */
   }
 }
 </script>

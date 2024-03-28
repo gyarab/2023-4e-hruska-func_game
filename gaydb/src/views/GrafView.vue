@@ -15,10 +15,17 @@ export default {
         const gameId = localStorage.getItem("gameId")
         if (gameId === null){
             console.log("no gameID")
-            this.$router.push("/home");
+            this.$router.push("/");
         }
 
         this.ws = new WebSocket("ws://localhost:8000/graf")
+
+        this.ws.onmessage = (event) =>{
+            console.log(event.data)
+            if (event.data["message"] == "data"){
+                console.log("už se šukají")
+            }
+        }
 
         this.canvas = document.getElementById("graf");
         this.canvasL = document.getElementById("levej_graf");
@@ -104,7 +111,6 @@ export default {
             //https://mathjs.org/docs/reference/functions.html
         },
         get_lowering_gradient(s){
-            //mid default
             if (s == "top") return -2 //start +h/4, +w/4
             else if(s == "mid") return 0
             else return -1 //start -h/4, -w/4 //bottom
@@ -226,15 +232,7 @@ input {
     margin: 5px;
     border: none;
 }
-.kontejner {
-    display: flex;
-    flex-direction: column;
-    gap: 2em;
-    align-items: center;
-    height: 85vh;
-    width: 100%;
-    padding: 20px;
-}
+
 .func_input {
     display: flex;
     flex-direction: row;

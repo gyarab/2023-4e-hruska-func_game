@@ -1,11 +1,21 @@
 <template>
     <div class="kontejner">
       <h1>Můj účet</h1>
-      <p>token: {{ token }}</p>
       <div id="items">
+        
+        <thead>
+        <tr>
+          <th>Key</th>
+          <th>Value</th>
+        </tr>
+      </thead>
         <p name="userinfo" v-for="(l, d) in this.res"><b style="font-size: 1.2em;">{{ d }}:</b> <p>{{ l }}</p></p>
       </div>
       <button v-on:click="logout" class="log-out">odhlásit se</button>
+      <div id="wanna-play">
+        <h1>v Chceš si zahrát? v</h1>
+        <a v-bind:href="'/play'">TADY</a>
+      </div>
     </div>
 </template>
   
@@ -64,6 +74,14 @@ export default {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5em;
+}
+
+#wanna-play{
+  display: flex;
+  flex-direction: column;
+  font-size: 2em;
+  align-items: center;
+  text-decoration: none;
 }
 
 p {
