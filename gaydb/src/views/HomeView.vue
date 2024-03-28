@@ -54,19 +54,20 @@ export default {
         console.log("gameId in storage")
         console.log(this.server_response)
         localStorage.setItem("gameId", a["data"])
-        this.$router.push(`/graf/${a["data"]}`);
-        
+        this.$router.push('/graf');
 
-        //poslat na /{gameId}
       }else if (a["message"] == "data"){
         //dostal jsem data a z toho se musí vykreslit graf a tak dále
-        //this.server_response = `${a["message"]} ${a["data"]}`
         console.log("tryin to connect to lobby")
+
       }else if (a["message"] == "connected"){
         //připojil jsem se do probíhající sesh
-        this.server_response = `${a["message"]} ${a["data"]}`
+        console.log("message: connected", "gameId in localstorage")
+        localStorage.setItem("gameId", a["data"]) // gameid to storage to pass through the 1. if
         console.log("tryin to connect to lobby")
-        this.$router.push(`/graf/${a["data"]}`);
+        const gameId = a["data"]
+        this.$router.push('/graf')
+
       }else if (a["message"] == "chyba"){
         //něco se posralo idk co, ale teď je to wrong input - neposílám gameId / 1 / -1
         this.server_response = `${a["message"]} ${a["data"]}`

@@ -1,9 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect, Query
 import auth
 import prikazy
 from modely import LoginARegisterBody
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, List
+import json
+
 
 app = FastAPI()
 
@@ -56,25 +58,27 @@ groups = {}
 
 class ConnectionManager:
     def __init__(self):
-        print("in init")
+        print("[WHERE] in init")
         self.group_conns: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
-        print("in connect")
+        print("[WHERE] in connect")
         await websocket.accept()
         self.group_conns.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        print("in connect")
+        print("[WHERE] in disconnect")
         self.group_conns.remove(websocket)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
-        print("in connect")
+        print("[WHERE] in send_personal_data")
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        print("in connect")     
+        print("[WHERE] in broadcast")     
         for connection in self.group_conns:
+            print(self.group_conns)
+            print(message)
             await connection.send_text(message)
 
 manager = ConnectionManager()
@@ -112,7 +116,7 @@ async def handle_websocket(websocket: WebSocket):
                         await player.send_json({"message": "data", "data" : message})
 
             else:
-                print("la+st else")
+                print("last else")
                 await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
 
     except WebSocketDisconnect:
@@ -129,18 +133,19 @@ async def handle_websocket(websocket: WebSocket):
                 del groups[game_id]
                 print(f"Group {game_id} deleted")
 
-@app.websocket('/graf/{client_id}')
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
-    print("in websocket /graf/hovno")
-    print("me here")
-    await manager.connect(websocket)
+@app.websocket('/graf')
+async def websocket_endpoint(websocket: WebSocket):
+    
 
+    await manager.connect(websocket)
+    
     try:
         while True:
             data = await websocket.receive_text()
-            print(data)
+            datovka = json.loads(data)
+            game_id = datovka["gameId"]
             await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            await manager.broadcast(f"Client #{game_id} says: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        await manager.broadcast(f"Client #{game_id} left the chat")

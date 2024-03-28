@@ -12,19 +12,14 @@ export default {
         }
     },
     mounted() {
-        let gameId = localStorage.getItem("gameId")
-        let token = localStorage.getItem("token")
+        const gameId = localStorage.getItem("gameId")
         if (gameId === null){
             console.log("no gameID")
-            this.$router.push("/");
+            this.$router.push("/home");
         }
-        this.ws = new WebSocket(`ws://127.0.0.1:8000/graf/?gameId=${gameId}`);
-        
-        this.ws.onmessage = function(event) {
-            let a = JSON.parse(event.data)
-            console.log(a)
-            this.ws.send(this.input_data)
-        };
+
+        this.ws = new WebSocket("ws://localhost:8000/graf")
+
         this.canvas = document.getElementById("graf");
         this.canvasL = document.getElementById("levej_graf");
         this.canvasR = document.getElementById("pravej_graf");
@@ -37,8 +32,9 @@ export default {
     methods: {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
         sendMessage() {
-            this.ws.send(this.input_data)
-            console.log(`[SENDING] data: ${this.input_data}`)
+            const gameId = localStorage.getItem("gameId")
+            this.ws.send(JSON.stringify({"gameId": gameId, "func": this.function_input}))
+            console.log(`[SENDING] data: {"gameId": ${gameId}, "func": ${this.function_input}`)
         },        
         draw_graph(e) {
             //e.preventDefault();
