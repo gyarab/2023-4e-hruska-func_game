@@ -58,7 +58,7 @@ export default {
     this.ws.onmessage = (event) => {
       let a = JSON.parse(event.data)
 
-      if (a["message"] == "gameId"){
+      if (a["message"] == "new lobby"){ //vytvořil nové game lobby
         this.server_response = `${a["message"]} ${a["data"]}`
         console.log("new lobby created")
         console.log("gameId in storage")
@@ -87,7 +87,7 @@ export default {
   methods: {
     sendMessage(event) {
       this.ws.send(JSON.stringify({"message": "1", "username": this.username_input})) //chce hrát / přidat se do Q
-      console.log(`[SENDING] data: ${this.input_data}`)
+      console.log(`[SENDING] data: ${this.username_input}`)
       event.preventDefault()
     },
   }

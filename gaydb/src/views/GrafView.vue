@@ -21,10 +21,8 @@ export default {
         this.ws = new WebSocket("ws://localhost:8000/graf")
 
         this.ws.onmessage = (event) =>{
-            console.log(event.data)
-            if (event.data["message"] == "data"){
-                console.log("už se šukají")
-            }
+            console.log("event.data" ,event.data)
+            console.log(event.data["func"])
         }
 
         this.canvas = document.getElementById("graf");
@@ -42,6 +40,7 @@ export default {
             const gameId = localStorage.getItem("gameId")
             this.ws.send(JSON.stringify({"gameId": gameId, "func": this.function_input}))
             console.log(`[SENDING] data: {"gameId": ${gameId}, "func": ${this.function_input}`)
+            this.draw_graph()
         },        
         draw_graph(e) {
             //e.preventDefault();
@@ -159,13 +158,16 @@ export default {
             ctx.stroke();
             console.log("collision made")
         },
+        /*
         send_message() {
             this.ws.onmessage = function(){
                 var message = this.function_input;
                 console.log(message)
                 this.ws.send(message)
             }
+            this.draw_graph()   
         }
+        */
     }
 }
 </script>
@@ -194,7 +196,7 @@ export default {
                             Bottom
                         </label>
                     </div>
-                    <button v-on:click="draw_graph()" class="btn" type="button">submit</button>
+                    <!--<button v-on:click="draw_graph()" class="btn" type="button">submit</button>-->
                     <button v-on:click="sendMessage()" class="btn" type="button">send message</button>
                 </fieldset>
             </div>

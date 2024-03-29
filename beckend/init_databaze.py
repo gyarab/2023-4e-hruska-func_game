@@ -8,7 +8,11 @@ cursor.execute("DROP TABLE users;")
 cursor.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, jmeno VARCHAR(20), hash_heslo VARCHAR(255), aktivni BOOLEAN DEFAULT TRUE);")
 
 uzivatele = [
-    ("user1", hash_heslo("ne")),
+    ("user1", hash_heslo("nene")),
+    ("user2", hash_heslo("nene")),
+    ("user3", hash_heslo("nene")),
+    ("user4", hash_heslo("nene")),
+    ("user5", hash_heslo("nene")),
 ]
 
 cursor.executemany("INSERT INTO users (jmeno, hash_heslo) VALUES (?, ?);", uzivatele)
