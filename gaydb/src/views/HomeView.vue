@@ -1,6 +1,6 @@
 <template>
-  <h1 class="nadpis">This is homepage</h1>
   <div id="home_kontejner">
+    <h1 class="nadpis">This is prematch lobby</h1>
     <div id="test_server">
       <h1>Enter Lobby</h1>
       <input class="text_input" style="width: 50%" v-model="username_input" form="text" placeholder="zadejte nickname" />
@@ -30,6 +30,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  gap: 2em;
+  padding: 20px;
 }
 
 #activator {

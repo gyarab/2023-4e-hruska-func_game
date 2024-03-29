@@ -39,7 +39,9 @@ async def login(body: LoginARegisterBody):
 
 @app.post("/registrace")
 async def register(body: LoginARegisterBody):
-    return body
+    print(body.username)
+    print(body.password)
+    prikazy.insert_user_to_db(body.username, body.password)
 
 
 @app.get("/ucet")

@@ -1,10 +1,18 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-//import { prihlasen } from '@vitejs/plugin-vue'
-let prihlasen = false
-if (localStorage.getItem("token") != null) {
-  prihlasen = true
-} 
+
+const prihlasen = ref(false)
+
+const checkPrihlasen = () => {
+  if (localStorage.getItem("token") !== null) {
+    prihlasen.value = true
+  } 
+}
+
+onMounted(() => {
+  checkPrihlasen() // Check the login status when the component is mounted
+})
 </script>
 
 <template>

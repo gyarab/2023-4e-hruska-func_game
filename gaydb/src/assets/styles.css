@@ -26,7 +26,7 @@ body{
 }
 .nadpis {
     margin: 10px;
-    font-size: 45px;
+    font-size: 40px;
     text-align: center;
     color: var(--bila-soft)
 }
@@ -94,8 +94,9 @@ h1 {
 .login_form {
     display: flex;
     flex-direction: column;
+    border: 1px solid white;
     gap: 1.2em;
-    width: 70%;
+    width: 75%;
     height: 70vh;
     background-color: var(--login-form-bg);
     margin-top: 1.7em;
@@ -135,4 +136,13 @@ label {
     height: 85vh;
     width: 100%;
     padding: 20px;
+}
+
+.ucet-kontejner {
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+    align-items: center;
+    height: 60vh;
+    width: 65%;
 }

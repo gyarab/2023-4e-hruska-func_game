@@ -1,6 +1,8 @@
 import sqlite3
 from modely import User
 import math, random
+from auth import hash_heslo
+
 
 con = sqlite3.connect("databaze.sqlite")
 
@@ -32,3 +34,10 @@ def find_free_lobby(groups):
         if lobby_id_str in groups and len(groups[lobby_id_str]) == 1:
             return lobby_id_str
     return None
+
+def insert_user_to_db(username: str, password: str):
+    cur = con.cursor()
+    hashed_potatoes = hash_heslo(password)
+    cur.execute("INSERT INTO users (jmeno, hash_heslo) VALUES (?, ?);", (username, hashed_potatoes))
+    print("[DB] inserted")
+    cur.close()

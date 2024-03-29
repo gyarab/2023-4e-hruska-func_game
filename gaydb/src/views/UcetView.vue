@@ -2,7 +2,7 @@
     <div class="kontejner">
       <h1 class="nadpis">Můj účet</h1>
       <div id="items">
-        <table>
+        <table class="custom-table">
           <thead>
             <tr>
               <th class="header">Key<hr></th>
@@ -17,16 +17,23 @@
           </tbody>
         </table>
       </div>
-      <div class="fake-kontejner">
-        <p class="pod-nadpis">Chceš si zahrát online?</p>
-        <a id="wanna-play" v-bind:href="'/play'">TADY</a>
+      <div class="ucet-kontejner">
+        <div class="fake-kontejner">
+          <p class="pod-nadpis">Chceš si zahrát online?</p>
+          <a id="wanna-play" v-bind:href="'/play'">TADY</a>
+        </div>
+        <div class="fake-kontejner">
+          <p class="pod-nadpis">Procvičovat solo</p>
+          <a id="wanna-play" v-bind:href="'/home'">TADY</a>
+        </div>
       </div>
       <button v-on:click="logout" class="log-out">odhlásit se</button>
-    </div>s
+    </div>
 </template>
 
 <script>
 import axios from 'axios' 
+//import { prihlasen } from ''
 
 export default {
   data() {
@@ -39,16 +46,15 @@ export default {
     
   },
   mounted() {
-    this.prihlasen = false
-    if (this.get_token_from_storage()){
-      this.prihlasen = true
-    }
     this.getMyInfo();
+    this.prihlasen = true
   },
   methods: {
     get_token_from_storage() {
-      // Retrieve token details from localStorage
-      this.token = localStorage.getItem("token") || "";
+      if (localStorage.getItem("token")){
+        return true
+      }
+      return false
     },
     logout(){
       localStorage.removeItem("token")
@@ -75,15 +81,35 @@ export default {
 </script>
 
 <style>
-th, td {
-  padding-top: 5px;
-  padding-left: 15px;
-  font-size: 1.2em;
-  color: var(--bila-soft);
+.custom-table {
+  
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--login-form-bg);
+  border-radius: 10px;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 8px;
+}
+
+.custom-table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.custom-table td {
+  text-align: left;
+}
+
+.custom-table th.header {
+  font-weight: bold;
 }
 
 .header {
-  padding: 10px;
+  color: black;
+  text-align: center;
 }
 
 tr {
@@ -101,18 +127,18 @@ tr {
   width: 65%;
   padding: 5px;
   background-color: var(--login-form-bg);
+  border: 1px solid white;
 }
 
 #items {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  height: 75vh;
   gap: 0.5em;
   padding: 10px;
   background-color: var(--login-form-bg);
   border-radius: 25px;
   width: 65%;
+  border: 1px solid white;
 }
 
 #wanna-play{
@@ -124,6 +150,7 @@ tr {
   padding: 7px;
   background-color: var(--func-input-bg);
   border-radius: 10px;
+  border: solid 1px white;
 }
 
 p {
@@ -140,6 +167,5 @@ p {
 }
 .log-out:hover {
   background-color: rgb(255, 0, 0);
-
 }
 </style>

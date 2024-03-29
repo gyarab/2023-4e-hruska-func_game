@@ -22,8 +22,8 @@ export default {
     },
     methods: {
         login(e){
-            console.log("posíláááám")
             e.preventDefault()
+            console.log("posíláááám")
             if (this.username.length < 5){
                 this.spatnyUsername = true
                 this.errors.push("zadejte jméno")
@@ -42,18 +42,16 @@ export default {
                 this.$router.push('/ucet');
             })
             .catch(error => {
-                this.errors.push("Špatné heslo")
+                this.errors.push("Špatné uživatelské jméno nebo heslo")
                 this.spatneHeslo = true
             });
-            console.log("watafak ",this.errors)
-            
         },
         prihlasitOnSuccess(){
 
         },
         zmena() { // pokud zacnu znova psat tak zrusim znaceni spatnyho inputu
-            spatnyEmail.value = false
-            spatnyHeslo.value = false
+            this.spatnyEmail = false
+            this.spatneHeslo = false
         },
         checkUdaje(udaje){
             console.log("more");

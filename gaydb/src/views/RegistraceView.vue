@@ -7,43 +7,62 @@ export default {
             email: "",
             password: "",
             password2: "",
-            prihlasen: false,
-            spatneHeslo: false,
-            spatnyEmail: false,
+            spatneHeslo: null,
+            spatnyEmail: null,
             errors: [],
             showError: false
         }
     },
     methods: {
-        validateForm(e) {
-            e.preventDefault();
-
-            console.log("validating form")
-            this.errors = [];
-            if (!this.password) this.spatneHeslo = true;
+        validateForm() {
+            this.spatneHeslo = false
+            this.spatnyEmail = false
+            console.log("[where] upper validating form")
+            if (!this.password || this.password !== this.password2) this.spatneHeslo = true;
+            console.log("[WHERE] under password check")
             if (!this.email) this.spatnyEmail = true;
-
             if (this.spatneHeslo || this.spatnyEmail){
-                if (this.spatnyEmail && this.jmeno.length > 12) this.errorHandler("Jméno je moc dlouhé.(3-12 znaků)")
+                if (this.spatnyEmail && this.email.length > 12) this.errorHandler("Jméno je moc dlouhé.(3-12 znaků)")
                 else if (this.spatnyEmail && this.email.length < 3) this.errorHandler("Jméno je moc krátké.(3-12 znaků)")
                 else if (this.spatnyEmail) this.errorHandler("Jméno může obsahovat jen velká a malá písmena, čísla a znaky _-+*!?")
                 else if (this.spatnyEmail) this.errorHandler("Nesprávný email")
                 else if (this.spatnyEmail) this.errorHandler("Heslo musí být delší než 5 znaků")
-                return
             }
-            console.log(this.errors)
+            if (!this.spatneHeslo && !this.spatnyEmail){
+                return true //v pořádku
+            }
+            return false //špatný input form
         },
-        registrovat(){
-            console.log(this.errors)
-            this.validateForm();
+        registrovat(e){
+            e.preventDefault()
+            if (this.validateForm()){
+                console.log("posííííílááááám")
+                axios.post('/registrace', {
+                    "username": this.email,
+                    "password": this.password,
+                })
+                .then(response => {
+                    //localStorage.setItem("token_type",response.data.token_type)
+                    this.$router.push('/prihlaseni');
+                })
+                .catch(error => {
+                    this.errors.push("Špatné heslo")
+                    this.spatneHeslo = true
+                });
+            }
+            else{
+                console.log("a znovu a budeš pllllnit")
+            }
+
 
         },
         checkUdaje(udaje){
-            if (udaje === "email" && this.email) this.spatnyEmail = !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(this.email.value); //valid email
-            else if (udaje === "heslo" && this.password !== undefined) this.spatneHeslo = !/^(?=.*[a-zA-Z]).{5,128}$/.test(this.password); //aspoň 5 znaků
+            const patternEmail = /^[a-zA-Z0-9]{5,}$/; //aspoň 5 písmen
+            const patternPassword = /^(?=.*[a-zA-Z]).{5,128}$/ //aspoň 5 znaků, jedno písmeno
+            if (udaje === "email" && this.email) this.spatnyEmail = !patternEmail.test(this.email)
+            else if (udaje === "heslo" && this.password !== undefined) this.spatneHeslo = !patternPassword.test(this.password);
             if(udaje === "email" && this.email.length === 0) this.spatnyEmail = true
             else if(udaje === "heslo" && this.password.length === 0 || this.password2.length === 0) this.spatneHeslo = true
-            
         },
         errorHandler(oznameni){
             this.errors.push(oznameni)
@@ -57,26 +76,23 @@ export default {
     <h1 class="nadpis">Registrace</h1>
     <div class="op">
         <div class="kontejner_register">
-            <form class="login_form" method="post" v-on:submit="registrovat">
+            <form class="login_form" v-on:submit="registrovat">
                 <label class="label" for="uname">Email:</label>
-                <input class="text_input" :@input="checkUdaje('email')" v-bind:class="{ 'invalid': errors.length && !this.spatneHeslo }"
+                <input class="text_input" :@input="checkUdaje('email')" v-bind:class="{wrong_input: spatnyEmail, text_input: !spatnyEmail}"
                  type="text" v-model="email" placeholder="Zadejte email" name="uname"/>
                  
                 <label class="label" for="password">Heslo:</label>
-                <input class="text_input" :@input="checkUdaje('heslo')" v-bind:class="{ 'invalid': errors.length && !this.spatneHeslo }"
+                <input class="text_input" :@input="checkUdaje('heslo')" v-bind:class="{wrong_input: spatneHeslo, text_input: !spatnyEmail}" name="password"
                 type="password" v-model="password" placeholder="Zadejte heslo"/>
 
                 <label class="label" for="password2">Heslo znovu:</label>
-                <input class="text_input" :@input="checkUdaje('heslo')" v-bind:class="{ 'invalid': errors.length && !this.spatneHeslo }" name="password2"
+                <input class="text_input" :@input="checkUdaje('heslo')" v-bind:class="{wrong_input: spatneHeslo, text_input: !spatneHeslo}" name="password2"
                 type="password" v-model="password2" placeholder="Zadejte heslo"/>
                 
-                <button v-on:click="registrovat" class="btn" type="submit">Založit účet</button>
+                <button v-on:click="registrovat" class="btn-in-registr" type="submit">Založit účet</button>
                 <hr class="herka">
-                <a href="/prihlaseni" id="podform">Mámte účet?: Přihlášení</a>
+                <a href="/prihlaseni" id="podform">Máte účet? Přihlášení</a>
             </form>
-        </div>
-        <div v-if="this.errors">
-            <p v-for="error in errors">{{ error }}</p>
         </div>
     </div>
     </template>
@@ -100,17 +116,24 @@ export default {
     font-size: 1.2em;
 }
 
-input.invalid {
-    border: 1px solid red;
+.wrong_input{
+    border: red solid 2px;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 1s;
+.btn-in-registr {
+    color: white;
+    width: 8em;
+    font-size: 15px;
+    padding: 5px;
+    height: 2.5em;
+    border-radius: 5px;
+    background-color: var(--func-input-bg);
+    border: none;
+    cursor: pointer;
+    align-self: center;
 }
 
-.fade-enter,
-.fade-leave-to {
-    opacity: 0;
+.btn-in-registr:hover {
+    background-color: var(--btn-hover);
 }
 </style>
