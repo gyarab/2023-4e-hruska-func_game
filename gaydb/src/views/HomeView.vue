@@ -55,30 +55,20 @@ export default {
     }
   },
   mounted() {
+    localStorage.removeItem("gameId")
     this.ws = new WebSocket("ws://localhost:8000/play"); 
 
     this.ws.onmessage = (event) => {
       let a = JSON.parse(event.data)
-
-      if (a["message"] == "new lobby"){ //vytvořil nové game lobby
-        this.server_response = `${a["message"]} ${a["data"]}`
-        console.log("new lobby created")
-        console.log("gameId in storage")
-        console.log(this.server_response)
-        localStorage.setItem("gameId", a["data"])
+      console.log("[in home]", a)
+      const gameStatus = a["message"];
+      const gameId = a["data"];
+      const whoFirst = a["who first"]
+      const myName = a["nickname"]
+      if (gameStatus == "new lobby" || gameStatus == "connected"){ //vytvořil nové game lobby
+        localStorage.setItem("game", JSON.stringify({"game status": gameStatus, "gameId": gameId, "who first": whoFirst, "username": myName}))
+        console.log("[WRITE] into localstorage: ", gameStatus, gameId, whoFirst, myName)
         this.$router.push('/graf');
-
-      }else if (a["message"] == "data"){
-        //dostal jsem data a z toho se musí vykreslit graf a tak dále
-        console.log("tryin to connect to lobby")
-
-      }else if (a["message"] == "connected"){
-        //připojil jsem se do probíhající sesh
-        console.log("message: connected", "gameId in localstorage")
-        localStorage.setItem("gameId", a["data"]) // gameid to storage to pass through the 1. if
-        console.log("tryin to connect to lobby")
-        const gameId = a["data"]
-        this.$router.push('/graf')
 
       }else if (a["message"] == "chyba"){
         //něco se posralo idk co, ale teď je to wrong input - neposílám gameId / 1 / -1
@@ -89,7 +79,7 @@ export default {
   methods: {
     sendMessage(event) {
       this.ws.send(JSON.stringify({"message": "1", "username": this.username_input})) //chce hrát / přidat se do Q
-      console.log(`[SENDING] data: ${this.username_input}`)
+      console.log(`[SENDING] username: ${this.username_input}`)
       event.preventDefault()
     },
   }

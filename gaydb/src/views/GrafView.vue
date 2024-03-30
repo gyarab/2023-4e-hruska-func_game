@@ -3,26 +3,65 @@
 export default {
     data() {
         return {
-            function_input: "",
-            canvas: "",
-            ctx: "",
+            username: '',
+            sending_message: '',
+            canvas: '',
+            ctx: '',
             textInput: '',
             selectedOption: '',
+            function_input: '',
             ws: null,
         }
     },
     mounted() {
-        const gameId = localStorage.getItem("gameId")
+        /*
+        potřebné údaje pro hru:
+         -kdo hraje první - Y
+         -username obou hráčů - x
+         -gameId - Y
+         -překážky, {[x,y,r], [x,y,r]} - x
+        během hry:
+         -username, gameId, func, selectedOption, 
+        konec:
+         -kdo vyhrál, --> close conns
+        */
+
+        //before game logic
+        const gameData = JSON.parse(localStorage.getItem("game"))
+        const gameId = gameData["gameId"] //mé gameId
+        const gameStatus = gameData["message"]
+        const circles = gameData["circles"]
+        const myName = gameData["username"]
+        console.log(myName) //moje jméno
+
         if (gameId === null){
-            console.log("no gameID")
-            this.$router.push("/");
+            console.log("[ERROR] no gameID")
+            this.$router.push("/ucet");
         }
 
         this.ws = new WebSocket("ws://localhost:8000/graf")
-
-        this.ws.onmessage = (event) =>{
-            console.log("event.data" ,event.data)
-            console.log(event.data["func"])
+        //in game logic
+        this.ws.onmessage = (event) =>{ //jde o data, která přišla socketem
+            console.log("[in ingame logic] ", event.data)
+            let a = JSON.parse(event.data)
+            let game_id = a["gameId"]
+            let func = a["func"]
+            let selected = a["selected"] 
+            let username = a["username"]
+            console.log("[COMPARING NAMES]",myName, username)
+            console.log("[PRINTING VALUES] ", selected, gameId, game_id)	//tady nevím, ale username by měl být ten, co přichází ne můj
+            if (selected && gameId == game_id){
+                if (username != myName){
+                    let color = "blue" 
+                    this.draw_graph(func, selected, color)
+                }
+                else if(username == myName){
+                    let color = "red"
+                    this.draw_graph(func, selected, color)
+                }
+            } else {
+                console.log("vykuř prdel")
+            }
         }
 
         this.canvas = document.getElementById("graf");
@@ -37,22 +76,28 @@ export default {
     methods: {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
         sendMessage() {
-            const gameId = localStorage.getItem("gameId")
-            this.ws.send(JSON.stringify({"gameId": gameId, "func": this.function_input}))
-            console.log(`[SENDING] data: {"gameId": ${gameId}, "func": ${this.function_input}`)
-            this.draw_graph()
+            if (this.selectedOption) {
+                const gameData = JSON.parse(localStorage.getItem("game"))
+                console.log(gameData)
+                const gameId = gameData["gameId"]
+                const myName = gameData["username"]
+                this.ws.send(JSON.stringify({"username": myName, "gameId": gameId, "func": this.function_input, "selected": this.selectedOption}))
+                console.log(`[SENDING] data: {"username": ${myName},"gameId": ${gameId}, "func": ${this.function_input}, "selected": ${this.selectedOption}}`)
+            } else {
+                console.log("stále kuř prdel")
+            }
         },        
-        draw_graph(e) {
+        draw_graph(func, selected, color) {
             //e.preventDefault();
             let w = this.canvas.width;
             let h = this.canvas.height;
-            this.ctx.strokeStyle = "red";
+            this.ctx.strokeStyle = color;
             this.ctx.lineWidth = 3;
 
             this.ctx.beginPath(); //kreslení grafu
             for (let i = 0; i < w; i += .1) {
-                let y = eval(this.calculate_y(i, this.function_input))
-                let [x1, y1] = this.konvertor(i, y)
+                let y = eval(this.calculate_y(i, func))
+                let [x1, y1] = this.konvertor(i, y, selected)
                 if (this.collided(y)){
                     this.ctx.stroke();
                     if (y > this.canvas.height){
@@ -62,7 +107,7 @@ export default {
                     }
                     break;
                 }
-                let [grafX, grafY] = this.konvertor(i*(w/12)/1.04, y*(h/8)/1.04) //1.04 - dont judge me
+                let [grafX, grafY] = this.konvertor(i*(w/12)/1.04, y*(h/8)/1.04, selected) //1.04 - dont judge me
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
             }
@@ -94,12 +139,12 @@ export default {
             }
             ctx.stroke();
         },
-        konvertor(x, y) { //graph cords
+        konvertor(x, y, selected) { //graph cords
             let y2 = (-y + this.canvas.height / 2);  
             let x2 = (x);// + this.canvas.width / 2);
-            if(this.get_lowering_gradient(this.selectedOption) == -2){
+            if(selected == "top"){ //top
                 y2 -= this.canvas.height/4
-            }else if (this.get_lowering_gradient(this.selectedOption) == -1){
+            }else if (selected == "bottom"){ //low
                 y2 += this.canvas.height/4
             }
             return [x2, y2];
@@ -152,11 +197,10 @@ export default {
             ctx.beginPath();
             ctx.strokeStyle = "red"
             ctx.fillStyle = "red"
-            console.log(x,y)
+            console.log("[WHERE COLLISION] ", x,y)
             ctx.arc(x, y, 40, 0, 2 * Math.PI);
             ctx.fill()
             ctx.stroke();
-            console.log("collision made")
         },
         /*
         send_message() {
@@ -176,7 +220,8 @@ export default {
         <form class="func_input">
             <div class="radio_kontejner">
             <fieldset id="radios">
-                <input type="text" v-model="function_input" placeholder="Insert function" class="text_input">
+                <input type="text" v-model="function_input" placeholder="Insert function"
+                    v-bind:class="{wrong_input: !selectedOption, text_input: selectedOption}">
                 <legend>Insert func and choose startig point:</legend>
                     <div id="singles">
                         <label>
@@ -212,6 +257,10 @@ export default {
     </div>
 </template>
 <style>
+.wrong_input{
+    border: red solid 2px;
+}
+
 .radio-kontejner {
     display: flex; 
     justify-content: center;

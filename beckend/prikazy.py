@@ -41,3 +41,31 @@ def insert_user_to_db(username: str, password: str):
     cur.execute("INSERT INTO users (jmeno, hash_heslo) VALUES (?, ?);", (username, hashed_potatoes))
     print("[DB] inserted")
     cur.close()
+
+def generate_circle(): #random circle
+    x = random.randint(-3, 3)
+    y = random.randint(-3, 3)
+    r = random.choice([1, 2])
+    
+    return [x, y, r]
+
+def circles_do_not_overlap(circles):
+    for i in range(len(circles)):
+        for j in range(i+1, len(circles)):
+            # Check if the distance between centers is greater than the sum of the radii
+            if ((circles[i][0] - circles[j][0])**2 + (circles[i][1] - circles[j][1])**2) < (circles[i][2] + circles[j][2])**2:
+                return False
+    return True
+
+def generate_three_circles():
+    circle1 = [0,0,random.choice([1, 2])] #jeden vždy na středu s rand r
+
+    #generuje dokud najde nepřekrývající
+    while True:
+        circles = [circle1]
+        for _ in range(2):
+            circle = generate_circle()
+            circles.append(circle)
+        
+        if circles_do_not_overlap(circles):
+            return circles

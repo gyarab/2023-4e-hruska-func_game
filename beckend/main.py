@@ -109,13 +109,13 @@ async def handle_websocket(websocket: WebSocket):
                 game_id = prikazy.generate_game_id(groups)
                 groups[game_id] = [websocket]
                 print(f"New group {game_id} created")
-                print("groups" ,groups)
-                await websocket.send_json({"message": "new lobby", "data" : game_id}) # / (poslat ho do waiting room)
+                print(f"[GROUPS].. {groups}")
+                await websocket.send_json({"message": "new lobby", "data" : game_id, "who first": "you", "nickname": nickname, "circles": prikazy.generate_three_circles()}) # / (poslat ho do waiting room)
 
-            elif(free_lobby_id and message == '1'):
+            elif free_lobby_id and message == '1':
                 groups[free_lobby_id].append(websocket)
                 print(f"Player connected to group {free_lobby_id}")   
-                await websocket.send_json({"message": "connected", "data": free_lobby_id})
+                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you"})
 
             else:
                 print("[WHERE] last else")
@@ -149,7 +149,7 @@ async def websocket_endpoint(websocket: WebSocket):
             datovka = json.loads(data)
             game_id = datovka["gameId"]
             await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{game_id} says: {data}")
+            await manager.broadcast(data)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{game_id} left the chat")
