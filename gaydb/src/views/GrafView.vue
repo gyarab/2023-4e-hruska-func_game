@@ -4,13 +4,13 @@ export default {
     data() {
         return {
             username: '',
-            sending_message: '',
             canvas: '',
             ctx: '',
-            textInput: '',
             selectedOption: '',
             function_input: '',
             ws: null,
+            circles: null,
+            gameData: null,
         }
     },
     mounted() {
@@ -26,13 +26,16 @@ export default {
          -kdo vyhrál, --> close conns
         */
 
-        //before game logic
-        const gameData = JSON.parse(localStorage.getItem("game"))
-        const gameId = gameData["gameId"] //mé gameId
-        const gameStatus = gameData["message"]
-        const circles = gameData["circles"]
-        const myName = gameData["username"]
-        console.log(myName) //moje jméno
+        //game logic data
+
+        this.gameData = JSON.parse(localStorage.getItem("game"))
+        //const gameStatus = this.gameData["message"] //
+        const gameId = this.gameData["data"] //mé gameId
+        //const whoFirst = this.gameData["who first"]
+        const myName = this.gameData["nickname"]
+        this.circles = this.gameData["circles"]
+        //this.draw_circles()
+        //console.log(myName) //moje jméno
 
         if (gameId === null){
             console.log("[ERROR] no gameID")
@@ -42,8 +45,8 @@ export default {
         this.ws = new WebSocket("ws://localhost:8000/graf")
         //in game logic
         this.ws.onmessage = (event) =>{ //jde o data, která přišla socketem
-            console.log("[in ingame logic] ", event.data)
             let a = JSON.parse(event.data)
+            console.log("[in ingame logic] ", a)
             let game_id = a["gameId"]
             let func = a["func"]
             let selected = a["selected"] 
@@ -53,10 +56,14 @@ export default {
             if (selected && gameId == game_id){
                 if (username != myName){
                     let color = "blue" 
+                    this.clean_canvas()
+                    this.draw_circles()
                     this.draw_graph(func, selected, color)
                 }
                 else if(username == myName){
                     let color = "red"
+                    this.clean_canvas()
+                    this.draw_circles()
                     this.draw_graph(func, selected, color)
                 }
             } else {
@@ -77,10 +84,9 @@ export default {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
         sendMessage() {
             if (this.selectedOption) {
-                const gameData = JSON.parse(localStorage.getItem("game"))
-                console.log(gameData)
-                const gameId = gameData["gameId"]
-                const myName = gameData["username"]
+                console.log(this.gameData)
+                const gameId = this.gameData["data"]
+                const myName = this.gameData["nickname"]
                 this.ws.send(JSON.stringify({"username": myName, "gameId": gameId, "func": this.function_input, "selected": this.selectedOption}))
                 console.log(`[SENDING] data: {"username": ${myName},"gameId": ${gameId}, "func": ${this.function_input}, "selected": ${this.selectedOption}}`)
             } else {
@@ -107,7 +113,7 @@ export default {
                     }
                     break;
                 }
-                let [grafX, grafY] = this.konvertor(i*(w/12)/1.04, y*(h/8)/1.04, selected) //1.04 - dont judge me
+                let [grafX, grafY] = this.konvertor(i*(w/12)/1, y*(h/8)/1, selected) //1.04 - dont judge me
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
             }
@@ -115,29 +121,30 @@ export default {
             this.ctx.stroke();
             console.log("graph done");
         },
-        draw_axes_and_field(ctx) {
+        draw_axes_and_field() {
             //vars
             let h = this.canvas.height; let w = this.canvas.width;
             let x0 = w / 2;
             let y0 = h / 2;
             let xmin = 0;
             //main axis
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.strokeStyle = "white";
-            ctx.moveTo(xmin, y0); ctx.lineTo(w, y0);  // X axis
-            ctx.moveTo(x0, 0); ctx.lineTo(x0, h);  // Y axis
-            ctx.stroke();
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "white";
+            this.ctx.moveTo(xmin, y0); this.ctx.lineTo(w, y0);  // X axis
+            this.ctx.moveTo(x0, 0); this.ctx.lineTo(x0, h);  // Y axis
+            this.ctx.stroke();
             //small axis
-            ctx.lineWidth = 1;
-            ctx.beginPath();
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
             for (let i = 0; i < w; i += w/12){
-                ctx.moveTo(i, 0); ctx.lineTo(i, h);
+                this.ctx.moveTo(i, 0); this.ctx.lineTo(i, h);
             }
             for (let i = 0; i < h; i += h/8){
-                ctx.moveTo(0, i); ctx.lineTo(w, i);
+                this.ctx.moveTo(0, i); this.ctx.lineTo(w, i);
             }
-            ctx.stroke();
+            this.ctx.stroke();
+            this.draw_circles()
         },
         konvertor(x, y, selected) { //graph cords
             let y2 = (-y + this.canvas.height / 2);  
@@ -159,10 +166,10 @@ export default {
             else if(s == "mid") return 0
             else return -1 //start -h/4, -w/4 //bottom
         },
-        clean_canvas(ctx){
-            //ctx.clearRect(0,0,ctx.width, ctx.height)
-            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.draw_axes_and_field(ctx)
+        clean_canvas(){
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.draw_axes_and_field()
+            this.draw_circles()
         },
         draw_left_and_right_canvas(ctxL, ctxR){
             //left canvas rect / lines
@@ -202,16 +209,18 @@ export default {
             ctx.fill()
             ctx.stroke();
         },
-        /*
-        send_message() {
-            this.ws.onmessage = function(){
-                var message = this.function_input;
-                console.log(message)
-                this.ws.send(message)
+        draw_circles(){
+            let magic_num = this.canvas.height/8 //jde o velikost jedné kostičky
+            console.log("[WHERE] in draw circles")
+            //console.log(this.circles[x][0], this.circles[x][1], this.circles[x][2])
+            this.ctx.strokeStyle = "black"
+            for (let x = 0; x < 3; x++){
+                this.ctx.beginPath()
+                this.ctx.arc(this.canvas.width / 2 + this.circles[x][0] * magic_num, this.canvas.height / 2 + this.circles[x][1] * magic_num, this.circles[x][2]  * magic_num, 0, 2 * Math.PI);
+                //v hodnotách, jak by vypadaly na grafu, no canvas pxs
+                this.ctx.fill();
             }
-            this.draw_graph()   
         }
-        */
     }
 }
 </script>

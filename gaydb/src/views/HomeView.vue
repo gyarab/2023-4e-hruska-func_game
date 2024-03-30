@@ -58,16 +58,15 @@ export default {
     localStorage.removeItem("gameId")
     this.ws = new WebSocket("ws://localhost:8000/play"); 
 
-    this.ws.onmessage = (event) => {
+    this.ws.onmessage = (event) => { //tady dostanu data potřebné na hru
       let a = JSON.parse(event.data)
       console.log("[in home]", a)
       const gameStatus = a["message"];
-      const gameId = a["data"];
-      const whoFirst = a["who first"]
-      const myName = a["nickname"]
+      const gameId = a["data"]; //just for debug
+      const whoFirst = a["who first"] //just for debug
+      const myName = a["nickname"] //just for debug
       if (gameStatus == "new lobby" || gameStatus == "connected"){ //vytvořil nové game lobby
-        localStorage.setItem("game", JSON.stringify({"game status": gameStatus, "gameId": gameId, "who first": whoFirst, "username": myName}))
-        console.log("[WRITE] into localstorage: ", gameStatus, gameId, whoFirst, myName)
+        localStorage.setItem("game", event.data)
         this.$router.push('/graf');
 
       }else if (a["message"] == "chyba"){

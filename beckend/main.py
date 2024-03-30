@@ -115,7 +115,7 @@ async def handle_websocket(websocket: WebSocket):
             elif free_lobby_id and message == '1':
                 groups[free_lobby_id].append(websocket)
                 print(f"Player connected to group {free_lobby_id}")   
-                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you"})
+                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you", "nickname": nickname})
 
             else:
                 print("[WHERE] last else")

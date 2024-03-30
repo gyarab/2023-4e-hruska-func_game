@@ -45,7 +45,7 @@ def insert_user_to_db(username: str, password: str):
 def generate_circle(): #random circle
     x = random.randint(-3, 3)
     y = random.randint(-3, 3)
-    r = random.choice([1, 2])
+    r = 1
     
     return [x, y, r]
 
@@ -58,7 +58,7 @@ def circles_do_not_overlap(circles):
     return True
 
 def generate_three_circles():
-    circle1 = [0,0,random.choice([1, 2])] #jeden vždy na středu s rand r
+    circle1 = [0, 0, 1] #jeden vždy na středu s rand r
 
     #generuje dokud najde nepřekrývající
     while True:
