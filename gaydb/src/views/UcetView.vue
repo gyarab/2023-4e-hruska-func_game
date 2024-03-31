@@ -63,7 +63,6 @@ export default {
     },
     async getMyInfo(){
       try{
-        console.log("[GETTING USER INFO] in get my info")
         let resp = await axios.get('/ucet', {
             headers: {
               Authorization: localStorage.getItem("token")

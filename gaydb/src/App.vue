@@ -20,16 +20,14 @@ onMounted(() => {
     <nav id="menu">
       <div id="menu-navs">
         <div class="link-kontejner">
-          <RouterLink to="/play">Home</RouterLink>
+          <RouterLink to="/">Domů</RouterLink>
         </div>
         <div class="link-kontejner">
           <RouterLink to="/about">About</RouterLink>
         </div>
-        <!--
-          <div class="link-kontejner">
-            <RouterLink to="/graf">Graf</RouterLink>
-          </div>
-        -->
+        <div class="link-kontejner">
+          <RouterLink to="/play">Play</RouterLink>
+        </div>
         <div v-if="!prihlasen" class="link-kontejner">
           <RouterLink to="/prihlaseni">Přihlášení</RouterLink>
         </div>

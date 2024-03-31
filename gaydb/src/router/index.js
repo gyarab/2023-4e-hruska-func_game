@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import PlayView from '../views/PlayView.vue'
 import AboutView from '../views/AboutView.vue'
 import GrafView from '../views/GrafView.vue'
 import PrihlaseniView from '../views/PrihlaseniView.vue'
@@ -11,8 +12,8 @@ const router = createRouter({
   routes: [
     {
       path: '/play',
-      name: 'home',
-      component: HomeView,
+      name: 'play',
+      component: PlayView,
       meta: {
         title: ''
       }
@@ -57,6 +58,14 @@ const router = createRouter({
         title: 'Me, myself and I'
       }
     },
+    {
+    path: '/',
+      name: 'home',
+      component: HomeView,
+      meta: {
+        title: 'Me, myself and I'
+      } 
+    }
   ]
 })
 

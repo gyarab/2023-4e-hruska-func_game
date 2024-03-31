@@ -11,6 +11,7 @@ export default {
             ws: null,
             circles: null,
             gameData: null,
+            flip: null,
         }
     },
     mounted() {
@@ -29,13 +30,16 @@ export default {
         //game logic data
 
         this.gameData = JSON.parse(localStorage.getItem("game"))
-        //const gameStatus = this.gameData["message"] //
+        //const gameStatus = this.gameData["message"]
         const gameId = this.gameData["data"] //mé gameId
-        //const whoFirst = this.gameData["who first"]
+        const whoFirst = this.gameData["who first"]
+        if (whoFirst == "not you"){ //nezačínáš, tak flipuješ
+            this.flip = true
+        }else{
+            this.flip = false
+        }
         const myName = this.gameData["nickname"]
         this.circles = this.gameData["circles"]
-        //this.draw_circles()
-        //console.log(myName) //moje jméno
 
         if (gameId === null){
             console.log("[ERROR] no gameID")
@@ -46,25 +50,27 @@ export default {
         //in game logic
         this.ws.onmessage = (event) =>{ //jde o data, která přišla socketem
             let a = JSON.parse(event.data)
-            console.log("[in ingame logic] ", a)
             let game_id = a["gameId"]
             let func = a["func"]
             let selected = a["selected"] 
             let username = a["username"]
-            console.log("[COMPARING NAMES]",myName, username)
-            console.log("[PRINTING VALUES] ", selected, gameId, game_id)	//tady nevím, ale username by měl být ten, co přichází ne můj
-            if (selected && gameId == game_id){
-                if (username != myName){
-                    let color = "blue" 
+            //console.log(`[PRINTING] my vars: myName: ${myName}, gameId: ${gameId}`)
+            //console.log(`[PRINTING] incoming vars: username: ${username}, game_id: ${game_id} selected: ${selected} func: ${func}`)
+            if (selected && (gameId == game_id)){
+                console.log(`[COMPARING] ${username}, ${myName}`)
+                if (username != myName){ //!=
+                    console.log("[DEBUGINGAME] not equal names")
+                    let color = "blue"
                     this.clean_canvas()
-                    this.draw_circles()
                     this.draw_graph(func, selected, color)
+                    this.draw_circles()
                 }
-                else if(username == myName){
+                else if(username == myName){ //==
+                    console.log("[DEBUGINGAME] equal names")
                     let color = "red"
                     this.clean_canvas()
-                    this.draw_circles()
                     this.draw_graph(func, selected, color)
+                    this.draw_circles()
                 }
             } else {
                 console.log("vykuř prdel")
@@ -84,7 +90,6 @@ export default {
         //FIXME animace po překročení canvas borderu, vytvořit logiku pro trefování protivníka
         sendMessage() {
             if (this.selectedOption) {
-                console.log(this.gameData)
                 const gameId = this.gameData["data"]
                 const myName = this.gameData["nickname"]
                 this.ws.send(JSON.stringify({"username": myName, "gameId": gameId, "func": this.function_input, "selected": this.selectedOption}))
@@ -94,32 +99,42 @@ export default {
             }
         },        
         draw_graph(func, selected, color) {
-            //e.preventDefault();
+            //var - video assistant ref
             let w = this.canvas.width;
             let h = this.canvas.height;
-            this.ctx.strokeStyle = color;
             this.ctx.lineWidth = 3;
-
+            this.ctx.strokeStyle = color
+            //drawing logic
+            //kreslení pro opponenta
+            if (color == "blue"){
+                this.ctx.translate(this.canvas.width, 0);
+                this.ctx.scale(-1,1)
+            }
+            
+            this.ctx.strokeStyle = color;
+            this.circle_collision()
             this.ctx.beginPath(); //kreslení grafu
-            for (let i = 0; i < w; i += .1) {
+            for (let i = 0; i < w; i += 0.1) {
                 let y = eval(this.calculate_y(i, func))
-                let [x1, y1] = this.konvertor(i, y, selected)
+                let [grafX, grafY] = this.konvertor(i * (w / 12), y * (h / 8), selected);
                 if (this.collided(y)){
+                    console.log(`[WHERE COLIDED] x: ${i}, y: ${y}`)
                     this.ctx.stroke();
-                    if (y > this.canvas.height){
-                        this.draw_collision(this.ctx, x1, 0);
-                    }else if(y < -this.canvas.height/2){
-                        this.draw_collision(this.ctx, i, this.canvas.height);
-                    }
                     break;
                 }
-                let [grafX, grafY] = this.konvertor(i*(w/12)/1, y*(h/8)/1, selected) //1.04 - dont judge me
+                if (this.circle_collision(i, y)){
+                    console.log(`[WHERE COLIDED] x: ${i}, y: ${y}`)
+                    this.ctx.stroke()
+                    break;
+                }
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY);
             }
-
             this.ctx.stroke();
-            console.log("graph done");
+            if (color == "blue"){
+                this.ctx.translate(this.canvas.width, 0);
+                this.ctx.scale(-1,1)
+            }
         },
         draw_axes_and_field() {
             //vars
@@ -147,7 +162,7 @@ export default {
             this.draw_circles()
         },
         konvertor(x, y, selected) { //graph cords
-            let y2 = (-y + this.canvas.height / 2);  
+            let y2 = (-y + this.canvas.height / 2);  //0,0 --> 0,h/2, 
             let x2 = (x);// + this.canvas.width / 2);
             if(selected == "top"){ //top
                 y2 -= this.canvas.height/4
@@ -204,14 +219,12 @@ export default {
             ctx.beginPath();
             ctx.strokeStyle = "red"
             ctx.fillStyle = "red"
-            console.log("[WHERE COLLISION] ", x,y)
             ctx.arc(x, y, 40, 0, 2 * Math.PI);
             ctx.fill()
             ctx.stroke();
         },
         draw_circles(){
             let magic_num = this.canvas.height/8 //jde o velikost jedné kostičky
-            console.log("[WHERE] in draw circles")
             //console.log(this.circles[x][0], this.circles[x][1], this.circles[x][2])
             this.ctx.strokeStyle = "black"
             for (let x = 0; x < 3; x++){
@@ -220,6 +233,16 @@ export default {
                 //v hodnotách, jak by vypadaly na grafu, no canvas pxs
                 this.ctx.fill();
             }
+        },
+        circle_collision(x,y){
+            console.log(x,y)
+            for (let i = 0; i < 3; i++){
+                console.log(this.circles[i][0], this.circles[i][1])
+                if (Math.sqrt((Math.pow(x-this.circles[i][0], 2) + Math.pow(y-this.circles[i][1], 2))) < 1){
+                    return true
+                }
+            }
+            return false
         }
     }
 }
@@ -255,8 +278,6 @@ export default {
                 </fieldset>
             </div>
         </form>
-        <button class="btn" v-on:click="clean_canvas(this.ctx)">Clean canvas</button>
-            
 
         <div class="graf_div">
             <canvas id="levej_graf" width="1000" height="1500"></canvas>

@@ -57,6 +57,7 @@ async def ucet(req: Request):
     return prikazy.get_user(username)
 
 groups = {}
+circles = {}
 
 class ConnectionManager:
     def __init__(self):
@@ -100,23 +101,26 @@ async def handle_websocket(websocket: WebSocket):
             a = json.loads(data)
             message = a["message"] #should be 1
             nickname = a["username"] #some sort of name
-            print(f"Received message: {message}, {nickname}")
+            print(f"[RECIEVED] message: {message}, {nickname}")
             print(f"[GROUPS].. {groups}")
             free_lobby_id = prikazy.find_free_lobby(groups)
             print(f"[FREE LOBBY] {free_lobby_id}")
 
             if free_lobby_id is None and message == '1': #chce hrát(1) a není volné lobby --> generate new gameId
                 game_id = prikazy.generate_game_id(groups)
+                kruhomir = prikazy.generate_three_circles()
                 groups[game_id] = [websocket]
-                print(f"New group {game_id} created")
-                print(f"[GROUPS].. {groups}")
-                await websocket.send_json({"message": "new lobby", "data" : game_id, "who first": "you", "nickname": nickname, "circles": prikazy.generate_three_circles()}) # / (poslat ho do waiting room)
+                circles[game_id] = kruhomir
+                print(f"[CREATED] New group {game_id} created")
+                print(f"[GROUPS] {groups}")
+                await websocket.send_json({"message": "new lobby", "data" : game_id, "who first": "you", "nickname": nickname, "circles": kruhomir}) # / (poslat ho do waiting room)
+
 
             elif free_lobby_id and message == '1':
                 groups[free_lobby_id].append(websocket)
-                print(f"Player connected to group {free_lobby_id}")   
-                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you", "nickname": nickname})
-
+                print(f"[CONN] Player connected to group {free_lobby_id}")   
+                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you", "nickname": nickname, "circles": circles[free_lobby_id]})
+                del circles[free_lobby_id]
             else:
                 print("[WHERE] last else")
                 await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
