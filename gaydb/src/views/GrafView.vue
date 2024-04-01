@@ -12,6 +12,7 @@ export default {
             circles: null,
             gameData: null,
             flip: null,
+            targets_num: 0, //pokud trefím, tak se číslo nyvýší
         }
     },
     mounted() {
@@ -31,8 +32,10 @@ export default {
 
         this.gameData = JSON.parse(localStorage.getItem("game"))
         //const gameStatus = this.gameData["message"]
+        //console.log(this.gameData)
         const gameId = this.gameData["data"] //mé gameId
         const whoFirst = this.gameData["who first"]
+        //console.log(`[TARGETS] ${targets}`)
         if (whoFirst == "not you"){ //nezačínáš, tak flipuješ
             this.flip = true
         }else{
@@ -100,6 +103,7 @@ export default {
         },        
         draw_graph(func, selected, color) {
             //var - video assistant ref
+            let magic_num = this.canvas.height/8
             let w = this.canvas.width;
             let h = this.canvas.height;
             this.ctx.lineWidth = 3;
@@ -110,25 +114,29 @@ export default {
                 this.ctx.translate(this.canvas.width, 0);
                 this.ctx.scale(-1,1)
             }
-            
             this.ctx.strokeStyle = color;
-            this.circle_collision()
             this.ctx.beginPath(); //kreslení grafu
             for (let i = 0; i < w; i += 0.1) {
                 let y = eval(this.calculate_y(i, func))
                 let [grafX, grafY] = this.konvertor(i * (w / 12), y * (h / 8), selected);
+                //console.log(grafX/100, grafY/100)
                 if (this.collided(y)){
-                    console.log(`[WHERE COLIDED] x: ${i}, y: ${y}`)
+                    console.log(`[Y COLLIDED] x: ${i}, y: ${y}`)
                     this.ctx.stroke();
                     break;
                 }
-                if (this.circle_collision(i, y)){
-                    console.log(`[WHERE COLIDED] x: ${i}, y: ${y}`)
-                    this.ctx.stroke()
-                    break;
+                /*
+                if (this.circle_collision(x,y)){
+                    console.log(`[CIRCLE COLLIDED] idk where`)
+                    this.ctx.stroke();
                 }
-                this.ctx.lineTo(grafX, grafY);
-                this.ctx.moveTo(grafX, grafY);
+                */
+               this.ctx.lineTo(grafX, grafY);
+               this.ctx.moveTo(grafX, grafY); 
+            }
+            if (this.hit_target(func)){
+                this.targets_num += 1 //score
+                this.draw_left_and_right_canvas(this.ctxL, this.ctxR)
             }
             this.ctx.stroke();
             if (color == "blue"){
@@ -188,8 +196,9 @@ export default {
         },
         draw_left_and_right_canvas(ctxL, ctxR){
             //left canvas rect / lines
-            let h = this.canvasL.height; let w = this.canvasL.width;
             let ctxs = [ctxL, ctxR]
+            let h = this.canvasL.height; let w = this.canvasL.width;
+
             for (let x = 0; x < 2; x++){
                 if(!x){ //nebudu to prohazovat
                     ctxs[x].fillStyle = `#D3C4E3`; //levej canvas
@@ -198,9 +207,8 @@ export default {
                     ctxs[x].fillStyle = `#8F95D3`; //pravej canvas
                     ctxs[x].strokeStyle = "blue";
                 }
-
                 ctxs[x].fillRect(0, 0, 1000, 1500);
-                ctxs[x].lineWidth = 5;
+                ctxs[x].lineWidth = 6;
                 for (let i = 1; i < 4; i++){
                     ctxs[x].beginPath();
                     ctxs[x].moveTo(0, i*h/4);
@@ -208,6 +216,11 @@ export default {
                     ctxs[x].stroke();   
                 }
             }
+            console.log(`[WHERE] in drawing L / R canvas`)
+            ctxs[1].fillStyle = `#87E752`
+            ctxs[0].fillStyle = `#87E752`
+            ctxs[1].fillRect(0, h / 4 * (this.gameData["targets"][this.targets_num] - 1), w, h / 4)
+            ctxs[0].fillRect(0, h / 4 * (4 - (this.gameData["targets"][this.targets_num])), w, h / 4)
         },
         collided(y){
             if (y > this.canvas.height || y < -this.canvas.height/2){
@@ -234,16 +247,48 @@ export default {
                 this.ctx.fill();
             }
         },
-        circle_collision(x,y){
-            console.log(x,y)
-            for (let i = 0; i < 3; i++){
-                console.log(this.circles[i][0], this.circles[i][1])
-                if (Math.sqrt((Math.pow(x-this.circles[i][0], 2) + Math.pow(y-this.circles[i][1], 2))) < 1){
-                    return true
+        circle_collision(x, y) {
+            if (x < -4 || x > 4|| y > 4 || y < -4){
+                return false
+            }
+            console.log(this.circles[1][0], this.circles[1][1])
+            for (let i = 0; i < 3; i++) {
+                //console.log(Math.sqrt(Math.pow(x - this.canvas.width / 2 + this.circles[i][0] * magic_num, 2) + Math.pow(y - this.canvas.height / 2 + this.circles[i][1] * magic_num, 2)))
+                let distance = Math.sqrt(Math.pow(x - this.circles[i][0], 2) + Math.pow(y - this.circles[i][1], 2));
+                console.log(distance)
+                if (distance < 1) {
+                    return true; 
                 }
             }
+            return false;
+        },
+        hit_target(func){
+            let target_bottom = null;
+            let target_top = null;
+            if (this.gameData["targets"][this.targets_num] == 1){
+                //console.log(`[TARGET] vrchní`)
+                target_bottom = 2
+                target_top = 4
+            } else if (this.gameData["targets"][this.targets_num] == 2) {
+                //console.log(`[TARGET] vrchní - 1`)
+                target_bottom = 0
+                target_top = 2
+            } else if (this.gameData["targets"][this.targets_num] == 3) {
+                //console.log(`[TARGET] spodní + 1`)
+                target_bottom = -2
+                target_top = 0
+            } else if (this.gameData["targets"][this.targets_num] == 4) {
+                //console.log(`[TARGET] spodní`)
+                target_bottom = -4
+                target_top = -2
+            }
+            let y = eval(this.calculate_y(12, func))
+            if (y > target_bottom && y < target_top){
+                console.log(`[well yeah collided] [${12}, ${y}]`)
+                return true
+            }
             return false
-        }
+        },
     }
 }
 </script>
@@ -278,7 +323,9 @@ export default {
                 </fieldset>
             </div>
         </form>
-
+        <div>
+            {{ this.targets_num }}
+        </div>
         <div class="graf_div">
             <canvas id="levej_graf" width="1000" height="1500"></canvas>
             <canvas id="graf" ref="graf" width="1250" height="800"></canvas>

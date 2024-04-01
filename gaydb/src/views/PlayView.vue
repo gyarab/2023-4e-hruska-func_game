@@ -91,14 +91,14 @@ export default {
         const whoFirst = a["who first"]; //just for debug
         const myName = a["nickname"]; //just for debug
         let circles = a["circles"]
+        const targets = a["targets"]
         if (whoFirst == "not you"){
           console.log("before flip ", circles)
           circles = this.flip_circles(circles)
           console.log("after flip ", circles)
         }
         if (gameStatus === "new lobby" || gameStatus === "connected"){ //vytvořil nové game lobby
-          console.log("event.data", event.data)
-          localStorage.setItem("game", JSON.stringify({"message":gameStatus, "data":gameId, "who first":whoFirst, "nickname":myName, "circles":circles}));
+          localStorage.setItem("game", JSON.stringify({"message":gameStatus, "data":gameId, "who first":whoFirst, "nickname":myName, "circles":circles, "targets": targets}));
           this.$router.push('/graf');
         } else if (a["message"] === "chyba"){
           //něco se posralo idk co, ale teď je to wrong input - neposílám gameId / 1 / -1

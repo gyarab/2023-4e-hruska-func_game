@@ -45,8 +45,8 @@ def insert_user_to_db(username: str, password: str):
 def generate_circle(): #random circle
     x = random.randint(-3, 3)
     y = random.randint(-3, 3)
-    r = 1
-    
+    a = random.randint(1,2)
+    r = 1/a
     return [x, y, r]
 
 def circles_do_not_overlap(circles):
@@ -69,3 +69,10 @@ def generate_three_circles():
         
         if circles_do_not_overlap(circles):
             return circles
+
+def generate_random_numbers():
+    return random.sample(range(1, 4), 3)
+
+def invert_list(numbers):
+    inverted_numbers = [5 - num for num in numbers]
+    return inverted_numbers

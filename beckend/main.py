@@ -58,6 +58,7 @@ async def ucet(req: Request):
 
 groups = {}
 circles = {}
+spots_to_hit = {}
 
 class ConnectionManager:
     def __init__(self):
@@ -109,18 +110,22 @@ async def handle_websocket(websocket: WebSocket):
             if free_lobby_id is None and message == '1': #chce hrát(1) a není volné lobby --> generate new gameId
                 game_id = prikazy.generate_game_id(groups)
                 kruhomir = prikazy.generate_three_circles()
+                targets = prikazy.generate_random_numbers() #[1,4,3] (not repetitive in range (1,4))
                 groups[game_id] = [websocket]
                 circles[game_id] = kruhomir
+                spots_to_hit[game_id] = targets
                 print(f"[CREATED] New group {game_id} created")
                 print(f"[GROUPS] {groups}")
-                await websocket.send_json({"message": "new lobby", "data" : game_id, "who first": "you", "nickname": nickname, "circles": kruhomir}) # / (poslat ho do waiting room)
-
+                await websocket.send_json({"message": "new lobby", "data" : game_id, "who first": "you", "nickname": nickname, "circles": circles[game_id], "targets": spots_to_hit[game_id]}) # / (poslat ho do waiting room)
 
             elif free_lobby_id and message == '1':
                 groups[free_lobby_id].append(websocket)
-                print(f"[CONN] Player connected to group {free_lobby_id}")   
-                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you", "nickname": nickname, "circles": circles[free_lobby_id]})
+                inverted_targets = prikazy.invert_list(spots_to_hit[free_lobby_id])
+                print(f"[CONN] Player connected to group {free_lobby_id}")  
+                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you", "nickname": nickname, "circles": circles[free_lobby_id], "targets": inverted_targets})
                 del circles[free_lobby_id]
+                del spots_to_hit[free_lobby_id]
+
             else:
                 print("[WHERE] last else")
                 await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
