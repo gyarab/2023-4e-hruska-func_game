@@ -56,11 +56,11 @@ export default {
             let game_id = a["gameId"]
             let func = a["func"]
             let selected = a["selected"] 
-            let username = a["username"]
+            this.username = a["username"]
+            let username = this.username
             //console.log(`[PRINTING] my vars: myName: ${myName}, gameId: ${gameId}`)
             //console.log(`[PRINTING] incoming vars: username: ${username}, game_id: ${game_id} selected: ${selected} func: ${func}`)
             if (selected && (gameId == game_id)){
-                console.log(`[COMPARING] ${username}, ${myName}`)
                 if (username != myName){ //!=
                     console.log("[DEBUGINGAME] not equal names")
                     let color = "blue"
@@ -272,6 +272,7 @@ export default {
             } else if (this.gameData["targets"][this.targets_num] == 2) {
                 //console.log(`[TARGET] vrchní - 1`)
                 target_bottom = 0
+                let meee = null
                 target_top = 2
             } else if (this.gameData["targets"][this.targets_num] == 3) {
                 //console.log(`[TARGET] spodní + 1`)
@@ -283,12 +284,18 @@ export default {
                 target_top = -2
             }
             let y = eval(this.calculate_y(12, func))
+            if (this.gameData["nickname"] != this.username){
+                let  m = target_top
+                target_top = -target_bottom
+                target_bottom = -m
+                console.log("not equal names", target_bottom, target_top, y)
+            }
             if (y > target_bottom && y < target_top){
                 console.log(`[well yeah collided] [${12}, ${y}]`)
                 return true
             }
             return false
-        },
+        }
     }
 }
 </script>
