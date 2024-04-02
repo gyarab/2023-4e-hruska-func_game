@@ -14,6 +14,10 @@ export default {
             flip: null,
             targets_num: 0, //pokud trefím, tak se číslo nyvýší
             myname: null,
+            ready: null,
+            game_ready: null,
+            my_score: 0,
+            his_score: 0,
         }
     },
     mounted() {
@@ -42,35 +46,39 @@ export default {
         this.ws = new WebSocket("ws://localhost:8000/graf")
         //in game logic
         this.ws.onmessage = (event) =>{ //jde o data, která přišla socketem
-            let a = JSON.parse(event.data)
-            console.log(`[RECEIVED DATA] ${a}`)
-            console.log(a)
-            let game_id = a["gameId"]
-            let func = a["func"]
-            let selected = a["selected"] 
-            this.selectedOption = selected
-            this.username = a["username"]
-            let username = this.username
-            //console.log(`[PRINTING] my vars: myName: ${myName}, gameId: ${gameId}`)
-            //console.log(`[PRINTING] incoming vars: username: ${username}, game_id: ${game_id} selected: ${selected} func: ${func}`)
-            if (selected && (gameId == game_id)){
-                if (username != myName){ //!=
-                    console.log("[DEBUGINGAME] not equal names")
-                    let color = "blue"
-                    this.clean_canvas()
-                    this.draw_graph(func, selected, color)
-                    this.draw_circles()
+            print(event.data)
+            if (event.data == "ready to play"){
+                this.game_ready = true
+            }else{
+                let a = JSON.parse(event.data)
+                console.log(`[RECEIVED DATA] ${a}`)
+                let game_id = a["gameId"]
+                let func = a["func"]
+                let selected = a["selected"] 
+                this.selectedOption = selected
+                this.username = a["username"]
+                let username = this.username
+                //console.log(`[PRINTING] my vars: myName: ${myName}, gameId: ${gameId}`)
+                //console.log(`[PRINTING] incoming vars: username: ${username}, game_id: ${game_id} selected: ${selected} func: ${func}`)
+                if (selected && (gameId == game_id)){
+                    if (username != myName){ //!=
+                        console.log("[DEBUGINGAME] not equal names")
+                        let color = "blue"
+                        this.clean_canvas()
+                        this.draw_graph(func, selected, color)
+                        this.draw_circles()
+                    }
+                    else if(username == myName){ //==
+                        console.log("[DEBUGINGAME] equal names")
+                        let color = "red"
+                        this.clean_canvas()
+                        this.draw_graph(func, selected, color)
+                        this.draw_circles()
+                    }
+                } else {
+                    console.log("error")
                 }
-                else if(username == myName){ //==
-                    console.log("[DEBUGINGAME] equal names")
-                    let color = "red"
-                    this.clean_canvas()
-                    this.draw_graph(func, selected, color)
-                    this.draw_circles()
-                }
-            } else {
-                console.log("vykuř prdel")
-            }
+            }            
         }
 
         this.canvas = document.getElementById("graf");
@@ -90,7 +98,7 @@ export default {
                 this.ws.send(JSON.stringify({"username": myName, "gameId": gameId, "func": this.function_input, "selected": this.selectedOption}))
                 console.log(`[SENDING] data: {"username": ${myName},"gameId": ${gameId}, "func": ${this.function_input}, "selected": ${this.selectedOption}}`)
             } else {
-                console.log("stále kuř prdel")
+                console.log("problém")
             }
         },        
         draw_graph(func, selected, color) {
@@ -110,7 +118,6 @@ export default {
             for (let i = 0; i < w; i += 0.1) {
                 let y = eval(this.calculate_y(i, func))
                 let [grafX, grafY] = this.konvertor(i * (w / 12), y * (h / 8), selected);
-                //console.log(grafX/100, grafY/100)
                 if (this.collided(y)){
                     console.log(`[Y COLLIDED] x: ${i}, y: ${y}`)
                     this.ctx.stroke();
@@ -227,7 +234,6 @@ export default {
         },
         draw_circles(){
             let magic_num = this.canvas.height/8 //jde o velikost jedné kostičky
-            //console.log(this.circles[x][0], this.circles[x][1], this.circles[x][2])
             this.ctx.strokeStyle = "black"
             for (let x = 0; x < 3; x++){
                 this.ctx.beginPath()
@@ -238,15 +244,11 @@ export default {
         },
         circle_collision(x, y) {
             let magic_num = this.canvas.height / 8
-            console.log(x, y)
             if (x < -4 || x > 4|| y > 4 || y < -4){
                 return false
             }
-            console.log(this.circles[1][0], this.circles[1][1])
             for (let i = 0; i < 3; i++) {
-                //console.log(Math.sqrt(Math.pow(x - this.canvas.width / 2 + this.circles[i][0] * magic_num, 2) + Math.pow(y - this.canvas.height / 2 + this.circles[i][1] * magic_num, 2)))
                 let distance = Math.sqrt(Math.pow(x - this.circles[i][0], 2) + Math.pow(y - this.circles[i][1], 2));
-                console.log(distance)
                 if (distance < 1) {
                     return true; 
                 }
@@ -257,25 +259,20 @@ export default {
             let target_bottom = null;
             let target_top = null;
             if (this.gameData["targets"][this.targets_num] == 1){
-                //console.log(`[TARGET] vrchní`)
                 target_bottom = 2
                 target_top = 4
             } else if (this.gameData["targets"][this.targets_num] == 2) {
-                //console.log(`[TARGET] vrchní - 1`)
                 target_bottom = 0
                 target_top = 2
             } else if (this.gameData["targets"][this.targets_num] == 3) {
-                //console.log(`[TARGET] spodní + 1`)
                 target_bottom = -2
                 target_top = 0
             } else if (this.gameData["targets"][this.targets_num] == 4) {
-                //console.log(`[TARGET] spodní`)
                 target_bottom = -4
                 target_top = -2
             }
             let y = eval(this.calculate_y(12, func))
             if (this.gameData["nickname"] != this.username){
-                console.log("in this.gameData[nickname] != this.username")
                 if(this.selectedOption == "top"){ //top
                     y += 2
                 }else if (this.selectedOption == "bottom"){ //low
@@ -285,7 +282,6 @@ export default {
                 target_top = -target_bottom
                 target_bottom = -m
             } else {
-                console.log("in } else {")
                 if(this.selectedOption == "top"){ //top
                     y += 2
                 }else if (this.selectedOption == "bottom"){ //low
@@ -295,16 +291,29 @@ export default {
             console.log(`[DEBUG in hit] y: ${y}, target_bottom: ${target_bottom}, target_top: ${target_top}`)
             if (y > target_bottom && y < target_top){
                 console.log(`[well yeah collided] [${12}, ${y}]`)
+                if (this.myname == this.gameData["nickname"]){
+                    this.my_score += 1
+                } else if (this.myname != this.gameData["nickname"]) {
+                    this.his_score += 1 
+                }
                 return true
             }
             return false
         },
         check_win(){
-            console.log("in check win")
-            if (this.targets_num == 3){
+            if (this.my_score == 2 || this.his_score == 2){
+                if (this.my_score > this.his_score){
+                    console.log("u won")
+                } else {
+                    console.log("u lose")
+                }
                 console.log("konec")
                 this.$router.push("/play");
             }
+        },
+        ready_to_play(){
+            this.ws.send(JSON.stringify({"message": "ready fregy", "gameId": this.gameData["data"]}))
+            this.ready = true
         }
     }
 }
@@ -313,7 +322,7 @@ export default {
     <div class="kontejner">
         <form class="func_input">
             <div class="radio_kontejner">
-            <fieldset v-if="username" id="radios">
+            <fieldset v-if="game_ready" id="radios">
                 <input type="text" v-model="function_input" placeholder="Insert function"
                     v-bind:class="{wrong_input: !selectedOption, text_input: selectedOption}">
                 <legend>Insert func and choose startig point:</legend>
@@ -340,21 +349,24 @@ export default {
                 </fieldset>
             </div>
         </form>
-        <div v-if="username" class="scoreboard">
+        <div v-if="ready" class="scoreboard">
             <div>
                 <h2>Moje statistiky:</h2>
                 <br>
-                {{ this.gameData["nickname"] }}
-                {{ this.targets_num }}
+                {{ this.myname }}
+                {{ this.my_score }}
             </div>
             <div>
-                Statistiky soupeře:
+                <h2>Statistiky soupeře:</h2>
                 <br>
                 {{ this.username }}
-                {{ this.targets_num }}
+                {{ this.his_score }}
             </div>
         </div>
-        <div v-else><h1>Čekání na protihráče...</h1></div>
+        <div v-else>
+            <h1>Čekání na protihráče...</h1>
+            <button v-on:click="ready_to_play()" class="btn">READY</button>
+        </div>
         <div class="graf_div">
             <canvas id="levej_graf" width="1000" height="1500"></canvas>
             <canvas id="graf" ref="graf" width="1250" height="800"></canvas>

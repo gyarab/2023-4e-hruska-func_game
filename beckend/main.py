@@ -59,6 +59,7 @@ async def ucet(req: Request):
 groups = {}
 circles = {}
 spots_to_hit = {}
+ready_fregacs = {}
 
 class ConnectionManager:
     def __init__(self):
@@ -100,6 +101,8 @@ async def handle_websocket(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             a = json.loads(data)
+            
+            print("raw data", a)
             message = a["message"] #should be 1
             nickname = a["username"] #some sort of name
             print(f"[RECIEVED] message: {message}, {nickname}")
@@ -112,6 +115,7 @@ async def handle_websocket(websocket: WebSocket):
                 kruhomir = prikazy.generate_three_circles()
                 targets = prikazy.generate_random_numbers() #[1,4,3] (not repetitive in range (1,4))
                 groups[game_id] = [websocket]
+                ready_fregacs[game_id] = 0
                 circles[game_id] = kruhomir
                 spots_to_hit[game_id] = targets
                 print(f"[CREATED] New group {game_id} created")
@@ -125,11 +129,12 @@ async def handle_websocket(websocket: WebSocket):
                 await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you", "nickname": nickname, "circles": circles[free_lobby_id], "targets": inverted_targets})
                 del circles[free_lobby_id]
                 del spots_to_hit[free_lobby_id]
-
+            """
             else:
                 print("[WHERE] last else")
                 await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
                 websocket.close(reason="conn v /graf")
+            """
 
     except WebSocketDisconnect:
         print("in websocket disconnect")
@@ -156,9 +161,15 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             datovka = json.loads(data)
-            game_id = datovka["gameId"]
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(data)
+            if ("message" in datovka and datovka["message"] == "ready fregy"):
+                ready_fregacs[datovka["gameId"]] += 1
+                print(ready_fregacs)
+                if ready_fregacs[datovka["gameId"]] >= 2:
+                    await manager.broadcast("ready to play")
+            else:
+                game_id = datovka["gameId"]
+                await manager.send_personal_message(f"You wrote: {data}", websocket)
+                await manager.broadcast(data)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{game_id} left the chat")

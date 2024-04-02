@@ -95,9 +95,14 @@ export default {
         if (whoFirst == "not you"){
           circles = this.flip_circles(circles)
         }
-        if (gameStatus === "new lobby" || gameStatus === "connected"){ //vytvořil nové game lobby
+        if (gameStatus === "new lobby" || gameStatus =="connected"){ //vytvořil nové game lobby
           localStorage.setItem("game", JSON.stringify({"message":gameStatus, "data":gameId, "who first":whoFirst, "nickname":myName, "circles":circles, "targets": targets}));
           this.$router.push('/graf');
+          /*
+        } else if(gameStatus ==="connected"){
+          localStorage.setItem("game", JSON.stringify({"message":gameStatus, "data":gameId, "who first":whoFirst, "nickname":myName, "circles":circles, "targets": targets}));
+          this.ws.send(JSON.stringify({"message": "ready to play", "gameId": gameId}))
+          */
         } else if (a["message"] === "chyba"){
           //něco se posralo idk co, ale teď je to wrong input - neposílám gameId / 1 / -1
           this.server_response = `${a["message"]} ${a["data"]}`;
