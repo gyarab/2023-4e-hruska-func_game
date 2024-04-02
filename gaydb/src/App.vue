@@ -20,10 +20,7 @@ onMounted(() => {
     <nav id="menu">
       <div id="menu-navs">
         <div class="link-kontejner">
-          <RouterLink to="/">Domů</RouterLink>
-        </div>
-        <div class="link-kontejner">
-          <RouterLink to="/about">O nás</RouterLink>
+          <RouterLink to="/">O nás</RouterLink>
         </div>
         <div class="link-kontejner">
           <RouterLink to="/play">Hrát</RouterLink>

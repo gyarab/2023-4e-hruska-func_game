@@ -1,10 +1,1 @@
-a = {}
-
-a[123] = 0
-
-a[123] += 1
-
-a[123] += 1
-
-if a[123] == 2:
-    print("yeah")
+# just for my little python debug mourkoviny, a ano komentáře se nepřekládají

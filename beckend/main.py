@@ -1,4 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect, Query
+from fastapi import (
+    FastAPI,
+    HTTPException,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+    Query,
+)
 import auth
 import prikazy
 from modely import LoginARegisterBody
@@ -24,6 +31,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.post("/prihlaseni")
 async def login(body: LoginARegisterBody):
@@ -54,12 +62,16 @@ async def ucet(req: Request):
     if username == "":
         raise HTTPException(status_code=401, detail="token je starej")
 
-    return prikazy.get_user(username)
+    info = prikazy.get_user(username)
+    print(info)
+    return {"jmeno": info.jmeno} #....
+
 
 groups = {}
 circles = {}
 spots_to_hit = {}
 ready_fregacs = {}
+
 
 class ConnectionManager:
     def __init__(self):
@@ -83,15 +95,17 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        print("[WHERE] in broadcast")     
+        print("[WHERE] in broadcast")
         for connection in self.group_conns:
             print(f"group_conns: {self.group_conns}")
             print(message)
             await connection.send_text(message)
 
+
 manager = ConnectionManager()
 
-@app.websocket('/play')
+
+@app.websocket("/play")
 async def handle_websocket(websocket: WebSocket):
     print("in home")
     await websocket.accept()
@@ -101,32 +115,52 @@ async def handle_websocket(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             a = json.loads(data)
-            
+
             print("raw data", a)
-            message = a["message"] #should be 1
-            nickname = a["username"] #some sort of name
+            message = a["message"]  # should be 1
+            nickname = a["username"]  # some sort of name
             print(f"[RECIEVED] message: {message}, {nickname}")
             print(f"[GROUPS].. {groups}")
             free_lobby_id = prikazy.find_free_lobby(groups)
             print(f"[FREE LOBBY] {free_lobby_id}")
 
-            if free_lobby_id is None and message == '1': #chce hrát(1) a není volné lobby --> generate new gameId
+            if (free_lobby_id is None and message == "1"):  # chce hrát(1) a není volné lobby --> generate new gameId
                 game_id = prikazy.generate_game_id(groups)
                 kruhomir = prikazy.generate_three_circles()
-                targets = prikazy.generate_random_numbers() #[1,4,3] (not repetitive in range (1,4))
+                targets = (
+                    prikazy.generate_random_numbers()
+                )  # [1,4,3] (not repetitive in range (1,4))
                 groups[game_id] = [websocket]
                 ready_fregacs[game_id] = 0
                 circles[game_id] = kruhomir
                 spots_to_hit[game_id] = targets
                 print(f"[CREATED] New group {game_id} created")
                 print(f"[GROUPS] {groups}")
-                await websocket.send_json({"message": "new lobby", "data" : game_id, "who first": "you", "nickname": nickname, "circles": circles[game_id], "targets": spots_to_hit[game_id]}) # / (poslat ho do waiting room)
+                await websocket.send_json(
+                    {
+                        "message": "new lobby",
+                        "data": game_id,
+                        "who first": "you",
+                        "nickname": nickname,
+                        "circles": circles[game_id],
+                        "targets": spots_to_hit[game_id],
+                    }
+                )  # / (poslat ho do waiting room)
 
-            elif free_lobby_id and message == '1':
+            elif free_lobby_id and message == "1":
                 groups[free_lobby_id].append(websocket)
                 inverted_targets = prikazy.invert_list(spots_to_hit[free_lobby_id])
-                print(f"[CONN] Player connected to group {free_lobby_id}")  
-                await websocket.send_json({"message": "connected", "data": free_lobby_id, "who first": "not you", "nickname": nickname, "circles": circles[free_lobby_id], "targets": inverted_targets})
+                print(f"[CONN] Player connected to group {free_lobby_id}")
+                await websocket.send_json(
+                    {
+                        "message": "connected",
+                        "data": free_lobby_id,
+                        "who first": "not you",
+                        "nickname": nickname,
+                        "circles": circles[free_lobby_id],
+                        "targets": inverted_targets,
+                    }
+                )
                 del circles[free_lobby_id]
                 del spots_to_hit[free_lobby_id]
             """
@@ -149,19 +183,19 @@ async def handle_websocket(websocket: WebSocket):
             if len(groups[game_id]) == 0:
                 del groups[game_id]
                 print(f"Group {game_id} deleted")
-    #websocket.close()
+    # websocket.close()
     print("groups", groups)
 
-@app.websocket('/graf')
-async def websocket_endpoint(websocket: WebSocket):
 
+@app.websocket("/graf")
+async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
-    
+
     try:
         while True:
             data = await websocket.receive_text()
             datovka = json.loads(data)
-            if ("message" in datovka and datovka["message"] == "ready fregy"):
+            if "message" in datovka and datovka["message"] == "ready fregy":
                 ready_fregacs[datovka["gameId"]] += 1
                 print(ready_fregacs)
                 if ready_fregacs[datovka["gameId"]] >= 2:

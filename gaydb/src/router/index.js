@@ -19,14 +19,6 @@ const router = createRouter({
       }
     },
     {
-      path: '/about',
-      name: 'about',
-      component: AboutView,
-      meta: {
-        title: 'O nás'
-      }
-    },
-    {
       path: '/graf',
       name: 'graf',
       component: GrafView,
@@ -61,7 +53,7 @@ const router = createRouter({
     {
     path: '/',
       name: 'home',
-      component: HomeView,
+      component: AboutView,
       meta: {
         title: 'Me, myself and I'
       } 
