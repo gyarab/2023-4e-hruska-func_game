@@ -93,9 +93,7 @@ export default {
         let circles = a["circles"]
         const targets = a["targets"]
         if (whoFirst == "not you"){
-          console.log("before flip ", circles)
           circles = this.flip_circles(circles)
-          console.log("after flip ", circles)
         }
         if (gameStatus === "new lobby" || gameStatus === "connected"){ //vytvořil nové game lobby
           localStorage.setItem("game", JSON.stringify({"message":gameStatus, "data":gameId, "who first":whoFirst, "nickname":myName, "circles":circles, "targets": targets}));
