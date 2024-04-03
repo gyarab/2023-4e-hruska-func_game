@@ -1,1 +1,0 @@
-# just for my little python debug mourkoviny, a ano komentáře se nepřekládají
