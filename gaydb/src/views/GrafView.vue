@@ -46,7 +46,7 @@ export default {
         this.ws = new WebSocket("ws://localhost:8000/graf")
         //in game logic
         this.ws.onmessage = (event) =>{ //jde o data, která přišla socketem
-            print(event.data)
+            //print(event.data)
             if (event.data == "ready to play"){
                 this.game_ready = true
             }else{
