@@ -1,6 +1,7 @@
 import sqlite3
 from modely import User
-import math, random
+import math
+import random
 from auth import hash_heslo
 
 
@@ -19,7 +20,7 @@ def get_user(jmeno: str = "", id: int = -1) -> User:
         return None
     
     cur.close()
-    print(*user_row)
+    print(user_row)
     return User(*user_row)
 
 def generate_game_id(groups):
@@ -76,3 +77,13 @@ def generate_random_numbers():
 def invert_list(numbers):
     inverted_numbers = [5 - num for num in numbers]
     return inverted_numbers
+
+def we_lose(user: str): #dopstane user, a tady přidá +1 hry
+    cur = con.cursor()
+    cur.execute("UPDATE users SET number_of_wins = number_of_wins + 1, number_of_games = number_of_games + 1 WHERE jmeno = ?", [user])
+    cur.close()
+
+def we_won(user: str): #dopstane user, a tady přidá +1 hry a +1 won
+    cur = con.cursor()
+    cur.execute("UPDATE users SET number_of_games = number_of_games + 1 WHERE jmeno = ?", [user])
+    cur.close()

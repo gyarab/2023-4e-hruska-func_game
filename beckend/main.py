@@ -64,7 +64,12 @@ async def ucet(req: Request):
 
     info = prikazy.get_user(username)
     print(info)
-    return {"jmeno": info.jmeno} #....
+    if info.number_of_games == 0:
+        winrate = 0
+    else:
+        winrate = info.number_of_wins/info.number_of_games*100
+        
+    return {"jmeno": info.jmeno, "games played": info.number_of_games, "winrate (%)": winrate} #....
 
 
 groups = {}
@@ -200,6 +205,17 @@ async def websocket_endpoint(websocket: WebSocket):
                 print(ready_fregacs)
                 if ready_fregacs[datovka["gameId"]] >= 2:
                     await manager.broadcast("ready to play")
+            
+            elif "message" in datovka and datovka["message"] == "wewon":
+                prikazy.we_lose(datovka["user"])
+                groups.pop(datovka["gameId"])
+                circles.pop(datovka["gameId"])
+                spots_to_hit.pop(datovka["gameId"])
+                ready_fregacs.pop(datovka["gameId"])
+
+            elif "message" in datovka and datovka["message"] == "welose":
+                prikazy.we_won(datovka["user"])
+                
             else:
                 game_id = datovka["gameId"]
                 await manager.send_personal_message(f"You wrote: {data}", websocket)

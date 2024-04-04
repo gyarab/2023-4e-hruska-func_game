@@ -24,7 +24,7 @@
         </div>
         <div class="fake-kontejner">
           <p class="pod-nadpis">Procvičovat solo</p>
-          <a id="wanna-play" v-bind:href="'/home'">TADY</a>
+          <a id="wanna-play" v-bind:href="'/'">TADY</a>
         </div>
       </div>
       <button v-on:click="logout" class="log-out">odhlásit se</button>
@@ -69,7 +69,8 @@ export default {
             }
         })
         this.res = resp.data
-
+        console.log(this.res)
+        localStorage.setItem("username", this.res["jmeno"])
       }catch(e){
         //this.$router.push('/prihlaseni');
         console.log(e)

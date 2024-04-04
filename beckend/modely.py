@@ -15,4 +15,5 @@ class User:
     id: int
     jmeno: str
     hash_heslo: bytes
-    aktivni: bool
+    number_of_wins: int
+    number_of_games: int

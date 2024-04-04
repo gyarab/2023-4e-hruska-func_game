@@ -118,6 +118,7 @@ export default {
             for (let i = 0; i < w; i += 0.1) {
                 let y = eval(this.calculate_y(i, func))
                 let [grafX, grafY] = this.konvertor(i * (w / 12), y * (h / 8), selected);
+                /*
                 if (this.collided(y)){
                     console.log(`[Y COLLIDED] x: ${i}, y: ${y}`)
                     this.ctx.stroke();
@@ -127,13 +128,15 @@ export default {
                     console.log(`[CIRCLE COLLIDED] idk where`)
                     this.ctx.stroke();
                 }
+                */
                this.ctx.lineTo(grafX, grafY);
                this.ctx.moveTo(grafX, grafY); 
+               if (!this.circle_collision(i/10 ,y) && !this.collided(y) && this.hit_target(func)){
+                    this.targets_num += 1 //score
+                    this.draw_left_and_right_canvas(this.ctxL, this.ctxR)
+                }
             }
-            if (this.hit_target(func)){
-                this.targets_num += 1 //score
-                this.draw_left_and_right_canvas(this.ctxL, this.ctxR)
-            }
+            
             this.ctx.stroke();
             if (color == "blue"){
                 this.ctx.translate(this.canvas.width, 0);
@@ -288,9 +291,9 @@ export default {
                     y -= 2
                 }
             }
-            console.log(`[DEBUG in hit] y: ${y}, target_bottom: ${target_bottom}, target_top: ${target_top}`)
+            //console.log(`[DEBUG in hit] y: ${y}, target_bottom: ${target_bottom}, target_top: ${target_top}`)
             if (y > target_bottom && y < target_top){
-                console.log(`[well yeah collided] [${12}, ${y}]`)
+                //console.log(`[well yeah hit] [${12}, ${y}]`)
                 if (this.myname == this.gameData["nickname"]){
                     this.my_score += 1
                 } else if (this.myname != this.gameData["nickname"]) {
@@ -304,16 +307,30 @@ export default {
             if (this.my_score == 2 || this.his_score == 2){
                 if (this.my_score > this.his_score){
                     console.log("u won")
+                    this.we_won(localStorage.getItem("username"))
+                    
                 } else {
                     console.log("u lose")
+                    this.we_lose(localStorage.getItem("username"))
                 }
                 console.log("konec")
-                this.$router.push("/play");
+                localStorage.removeItem("game")
+                localStorage.removeItem("nickname")
+
+                this.$router.push("/ucet");
             }
         },
         ready_to_play(){
             this.ws.send(JSON.stringify({"message": "ready fregy", "gameId": this.gameData["data"]}))
             this.ready = true
+        },
+        we_lose(user){
+            this.ws.send(JSON.stringify({"message": "endgame", "gameId": this.gameData["data"], "user": user}))
+            this.ws.close()
+        },
+        we_won(user){
+            this.ws.send(JSON.stringify({"message": "endgame", "gameId": this.gameData["data"], "user": user}))
+            this.ws.close()
         }
     }
 }
