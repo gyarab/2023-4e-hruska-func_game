@@ -10,6 +10,7 @@ export default {
             function_input: '',
             ws: null, //websocket
             circles: null, //překážky
+            canvas_circles: [[0,0,0],[0,0,0],[0,0,0]], //circles souřadnice přepočítané na canvas pixely
             gameData: null, //data z local storage
             flip: null, //jeden z hráčů permanentně flipuje canvas
             targets_num: 0, //pokud trefím, tak se číslo nyvýší
@@ -29,10 +30,8 @@ export default {
 
         this.gameData = JSON.parse(localStorage.getItem("game"))
         //const gameStatus = this.gameData["message"]
-        //console.log(this.gameData)
         const gameId = this.gameData["data"] //mé gameId
         const whoFirst = this.gameData["who first"]
-        //console.log(`[TARGETS] ${targets}`)
         if (whoFirst == "not you"){ //nezačínáš, tak flipuješ
             this.flip = true
             this.gameLogic.myturn = false
@@ -45,8 +44,7 @@ export default {
         this.circles = this.gameData["circles"]
 
         if (gameId === null){
-            console.log("[ERROR] no gameID")
-            this.$router.push("/ucet");
+            this.$router.push("/ucet"); //back to the lobby
         }
 
         this.ws = new WebSocket("ws://localhost:8000/graf")
@@ -67,21 +65,21 @@ export default {
                 if (selected && (gameId == game_id)){
                     if (this.username != myName){ 
                         this.gameLogic.hisname = this.username
-                        console.log("this.username != myName",this.username, this.gameLogic.myname, this.gameLogic.hisname)
-                        console.log("[DEBUGINGAME] not equal names")
+                        //console.log("this.username != myName",this.username, this.gameLogic.myname, this.gameLogic.hisname)
+                        //console.log("[DEBUGINGAME] not equal names")
                         let color = "blue"
                         this.clean_canvas()
-                        this.draw_graph(func, selected, color)
                         this.draw_circles()
+                        this.draw_graph(func, selected, color)
                         this.flip_my_turn()
                     }
                     else if(this.username == myName){ 
-                        console.log("this.username == myName",this.username, this.gameLogic.myname, this.gameLogic.hisname)
-                        console.log("[DEBUGINGAME] equal names")
+                        //console.log("this.username == myName",this.username, this.gameLogic.myname, this.gameLogic.hisname)
+                        //console.log("[DEBUGINGAME] equal names")
                         let color = "red"
                         this.clean_canvas()
-                        this.draw_graph(func, selected, color)
                         this.draw_circles()
+                        this.draw_graph(func, selected, color)
                         this.flip_my_turn()
                     }
                 } else {
@@ -136,14 +134,15 @@ export default {
                     this.ctx.stroke();
                     break;
                 }
-                if (this.circle_collision(i/10, y)){
-                    console.log(`[CIRCLE COLLIDED] idk where`)
-                    this.ctx.stroke();
-                }
                 */
-               this.ctx.lineTo(grafX, grafY);
-               this.ctx.moveTo(grafX, grafY); 
-               if (!this.circle_collision(i/10 ,y) && !this.collided(y) && this.hit_target(func)){
+                console.log("koule")
+                if (this.circle_collision(grafX, grafY)){ // i,y --> logic-asi, //grafx, grafy --> canvasove
+                    console.log(`[CIRCLE COLLIDED] in x: ${grafX}, y: ${grafY}`)
+                    break;
+                } 
+                this.ctx.lineTo(grafX, grafY);
+                this.ctx.moveTo(grafX, grafY); 
+                if (!this.circle_collision(grafX, grafY) && !this.collided(y) && this.hit_target(func)){
                     this.targets_num += 1 //score
                     this.draw_left_and_right_canvas(this.ctxL, this.ctxR)
                 }
@@ -239,33 +238,47 @@ export default {
             }
             return false
         },
-        draw_collision(ctx, x, y){
-            ctx.beginPath();
-            ctx.strokeStyle = "red"
-            ctx.fillStyle = "red"
-            ctx.arc(x, y, 40, 0, 2 * Math.PI);
-            ctx.fill()
-            ctx.stroke();
-        },
         draw_circles(){
             let magic_num = this.canvas.height/8 //jde o velikost jedné kostičky
             this.ctx.strokeStyle = "black"
-            for (let x = 0; x < 3; x++){
+            for (let i = 0; i < 3; i++){
                 this.ctx.beginPath()
-                this.ctx.arc(this.canvas.width / 2 + this.circles[x][0] * magic_num, this.canvas.height / 2 + this.circles[x][1] * magic_num, this.circles[x][2]  * magic_num, 0, 2 * Math.PI);
-                //v hodnotách, jak by vypadaly na grafu, no canvas pxs
+                this.ctx.arc(this.canvas.width / 2 + this.circles[i][0] * magic_num, this.canvas.height / 2 + this.circles[i][1] * magic_num, this.circles[i][2]  * magic_num, 0, 2 * Math.PI);
+                //canvas pixels 
                 this.ctx.fill();
             }
+            if (this.canvas_circles[0][2] == 0) {
+                this.transfer_circle_cords()
+                console.log(this.canvas_circles)
+            }
         },
+        transfer_circle_cords(){
+            let magic_num = this.canvas.height/8 //jde o velikost jedné kostičky
+            for (let i = 0; i < 3; i++){
+                this.canvas_circles[i][0] = this.canvas.width / 2 + this.circles[i][0] * magic_num
+                this.canvas_circles[i][1] = this.canvas.height / 2 + this.circles[i][1] * magic_num
+                this.canvas_circles[i][2] = this.circles[i][2]  * magic_num
+                //canvas pixels 
+            }
+        },
+        
         circle_collision(x, y) {
+            //let readyfregy = [[0,0,0],[0,0,0],[0,0,0]]
+            if (!this.myturn) {
+                realflipcircs = this.transfer_circle_cords(this.flip_circles(this.circles))
+                this.canvas_circles = realflipcircs
+            } else {
+                realflipcircs = this.canvas_circles
+            }
             let magic_num = this.canvas.height / 8
-            if (x < -4 || x > 4|| y > 4 || y < -4){
+            
+            if (x < 2*magic_num || x > 10*magic_num){
                 return false
             }
+            
             for (let i = 0; i < 3; i++) {
-                let distance = Math.sqrt(Math.pow(x - this.circles[i][0], 2) + Math.pow(y - this.circles[i][1], 2));
-                if (distance < 1) {
-                    return true; 
+                if (Math.sqrt(Math.pow(x - realflipcircs[i][0], 2) + Math.pow(y - realflipcircs[i][1], 2)) < realflipcircs[i][2]) {
+                    return true;
                 }
             }
             return false;
@@ -303,19 +316,17 @@ export default {
                     y -= 2
                 }
             }
-            //console.log(`[DEBUG in hit] y: ${y}, target_bottom: ${target_bottom}, target_top: ${target_top}`)
             if (y > target_bottom && y < target_top){
-                //console.log(`[well yeah hit] [${12}, ${y}]`)
                 console.log(`[DEBUG NAMES] myname: ${this.gameLogic.myname} hreceived name: ${this.gameLogic.hisname}`)
                 if (this.gameLogic.hisname == null){
-                    console.log("[SCORE] MYscore++")
+                    //console.log("[SCORE] MYscore++")
                     this.gameLogic.myscore += 1
                 } else if (this.gameLogic.myname == this.username){
                     this.gameLogic.myscore += 1
-                    console.log("[SCORE] MYscore++")
+                    //console.log("[SCORE] MYscore++")
                 } else if (this.gameLogic.myname != this.gameLogic.hisname) {
                     this.gameLogic.hisscore += 1 
-                    console.log("[SCORE] HISscore++")
+                    //console.log("[SCORE] HISscore++")
                 }
                 return true
             }
@@ -324,14 +335,12 @@ export default {
         check_win(){
             if (this.gameLogic.myscore == 2 || this.gameLogic.hisscore == 2){
                 if (this.gameLogic.myscore > this.gameLogic.hisscore){
-                    console.log("u won")
                     this.we_won(localStorage.getItem("username"))
                     
                 } else {
-                    console.log("u lose")
                     this.we_lose(localStorage.getItem("username"))
                 }
-                console.log("konec")
+                console.log(`[ENDE SCHLUSS]`)
                 localStorage.removeItem("game")
                 localStorage.removeItem("nickname")
 
@@ -352,7 +361,10 @@ export default {
         },
         flip_my_turn(){
             this.gameLogic.myturn = !this.gameLogic.myturn
-        }
+        },
+        flip_circles(circs){
+            return [[circs[0][0], circs[0][1], circs[0][2]],[-circs[1][0], circs[1][1], circs[1][2]],[-circs[2][0],circs[2][1],circs[2][2]]]
+        },
     }
 }
 </script>

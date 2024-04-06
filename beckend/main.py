@@ -131,13 +131,13 @@ async def handle_websocket(websocket: WebSocket):
 
             if (free_lobby_id is None and message == "1"):  # chce hrát(1) a není volné lobby --> generate new gameId
                 game_id = prikazy.generate_game_id(groups)
-                kruhomir = prikazy.generate_three_circles()
+                prekazky = prikazy.generate_three_circles()
                 targets = (
                     prikazy.generate_random_numbers()
                 )  # [1,4,3] (not repetitive in range (1,4))
                 groups[game_id] = [websocket]
                 ready_fregacs[game_id] = 0
-                circles[game_id] = kruhomir
+                circles[game_id] = prekazky
                 spots_to_hit[game_id] = targets
                 print(f"[CREATED] New group {game_id} created")
                 print(f"[GROUPS] {groups}")
