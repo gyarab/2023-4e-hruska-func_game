@@ -3,24 +3,24 @@
 export default {
     data() {
         return {
-            username: '',
+            username: '', //příchozí jméno od serveru
             canvas: '',
             ctx: '',
             selectedOption: '',
             function_input: '',
-            ws: null,
-            circles: null,
-            gameData: null,
-            flip: null,
+            ws: null, //websocket
+            circles: null, //překážky
+            gameData: null, //data z local storage
+            flip: null, //jeden z hráčů permanentně flipuje canvas
             targets_num: 0, //pokud trefím, tak se číslo nyvýší
             gameLogic: {
-                myscore: 0,
+                myscore: 0, 
                 hisscore: 0,
-                ready: null,
-                gameready: null,
-                myname: null,
-                hisname: null,
-                myturn: null,
+                ready: null, //jsem ready na hru
+                gameready: null, //oba hráči jsou ready na hru
+                myname: null, //myname ve hře
+                hisname: null, //jeho jméno ve hře
+                myturn: null, //jsem na řadě
             }
         }
     },
@@ -55,7 +55,7 @@ export default {
             //print(event.data)
             if (event.data == "ready to play"){
                 this.gameLogic.gameready = true
-            }else{
+            } else {
                 let a = JSON.parse(event.data)
                 console.log(`[RECEIVED DATA] ${a}`)
                 let game_id = a["gameId"]
@@ -63,11 +63,11 @@ export default {
                 let selected = a["selected"] 
                 this.selectedOption = selected
                 this.username = a["username"]
-                let username = this.username
-                //console.log(`[PRINTING] my vars: myName: ${myName}, gameId: ${gameId}`)
-                //console.log(`[PRINTING] incoming vars: username: ${username}, game_id: ${game_id} selected: ${selected} func: ${func}`)
+
                 if (selected && (gameId == game_id)){
-                    if (username != myName){ //!=
+                    if (this.username != myName){ 
+                        this.gameLogic.hisname = this.username
+                        console.log("this.username != myName",this.username, this.gameLogic.myname, this.gameLogic.hisname)
                         console.log("[DEBUGINGAME] not equal names")
                         let color = "blue"
                         this.clean_canvas()
@@ -75,7 +75,8 @@ export default {
                         this.draw_circles()
                         this.flip_my_turn()
                     }
-                    else if(username == myName){ //==
+                    else if(this.username == myName){ 
+                        console.log("this.username == myName",this.username, this.gameLogic.myname, this.gameLogic.hisname)
                         console.log("[DEBUGINGAME] equal names")
                         let color = "red"
                         this.clean_canvas()
@@ -305,13 +306,17 @@ export default {
             //console.log(`[DEBUG in hit] y: ${y}, target_bottom: ${target_bottom}, target_top: ${target_top}`)
             if (y > target_bottom && y < target_top){
                 //console.log(`[well yeah hit] [${12}, ${y}]`)
-                console.log(`[DEBUG NAMES] myname: ${this.gameLogic.myname} hreceived name: ${this.gameData["nickname"]}`)
-                if (this.gameLogic.myname == this.gameData["nickname"]){
+                console.log(`[DEBUG NAMES] myname: ${this.gameLogic.myname} hreceived name: ${this.gameLogic.hisname}`)
+                if (this.gameLogic.hisname == null){
+                    console.log("[SCORE] MYscore++")
                     this.gameLogic.myscore += 1
-                } else if (this.gameLogic.myname != this.gameData["nickname"]) {
+                } else if (this.gameLogic.myname == this.username){
+                    this.gameLogic.myscore += 1
+                    console.log("[SCORE] MYscore++")
+                } else if (this.gameLogic.myname != this.gameLogic.hisname) {
                     this.gameLogic.hisscore += 1 
+                    console.log("[SCORE] HISscore++")
                 }
-                console.log(`[SCOREBOARD] my score: ${this.gameLogic.myscore}, his score: ${this.gameLogic.hisscore}`)
                 return true
             }
             return false
@@ -338,11 +343,11 @@ export default {
             this.gameLogic.ready = true
         },
         we_lose(user){
-            this.ws.send(JSON.stringify({"message": "endgame", "gameId": this.gameData["data"], "user": user}))
+            this.ws.send(JSON.stringify({"message": "welose", "gameId": this.gameData["data"], "user": user}))
             this.ws.close()
         },
         we_won(user){
-            this.ws.send(JSON.stringify({"message": "endgame", "gameId": this.gameData["data"], "user": user}))
+            this.ws.send(JSON.stringify({"message": "wewon", "gameId": this.gameData["data"], "user": user}))
             this.ws.close()
         },
         flip_my_turn(){
@@ -397,7 +402,7 @@ export default {
             <div>
                 <h2>Statistiky soupeře:</h2>
                 <br>
-                {{ this.username }}
+                {{ this.gameLogic.hisname }}
                 {{ this.gameLogic.hisscore }}
             </div>
         </div>
