@@ -4,7 +4,7 @@
     <div id="test_server">
       <h1>Enter Lobby</h1>
       <input class="text_input" style="width: 50%" v-model="username_input" form="text" placeholder="zadejte nickname" />
-      <button id="activator" v-on:click="sendMessage">PLAY ONLINE</button>
+      <button id="activator" v-on:click="sendMessage">HRÁT ONLINE</button>
       <li v-if="server_response">Server response: {{ server_response }}</li>
     </div>
   </div>
@@ -43,6 +43,9 @@
   padding: 12px;
   margin: 5px;
 }
+#activator:hover {
+  background-color: var(--btn-hover);
+}
 </style>
 
 <script>
@@ -55,7 +58,7 @@ export default {
     }
   },
   mounted() {
-    localStorage.removeItem("game")
+    this.clear_localstorage()
     if (!this.ws || this.ws.readyState === WebSocket.CLOSED){
       this.ws = new WebSocket("ws://localhost:8000/play"); 
       this.ws.addEventListener("message", this.my_on_message())
@@ -74,6 +77,10 @@ export default {
     sendMessage(event) {
       if (this.ws.readyState === WebSocket.OPEN) {
         // Send message over WebSocket
+        console.log(!this.username_input)
+        if (!this.username_input) {
+          this.username_input = localStorage.getItem("username")
+        }
         this.ws.send(JSON.stringify({"message": "1", "username": this.username_input}));
         console.log(`[SENDING] username: ${this.username_input}`);
       } else {
@@ -111,7 +118,10 @@ export default {
     },
     flip_circles(circs){
       return [[circs[0][0], circs[0][1], circs[0][2]],[-circs[1][0], circs[1][1], circs[1][2]],[-circs[2][0],circs[2][1],circs[2][2]]]
-    }
+    },
+    clear_localstorage(){
+      localStorage.removeItem("game")
+    },
   }
 }
 </script>

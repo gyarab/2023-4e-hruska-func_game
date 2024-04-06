@@ -46,6 +46,7 @@ export default {
     
   },
   mounted() {
+    this.clear_localstorage()
     this.getMyInfo();
     this.prihlasen = true
   },
@@ -76,13 +77,19 @@ export default {
         console.log(e)
       }
     },
+    clear_localstorage(){
+      localStorage.removeItem("game")
+    },
   }
 }
 </script>
 
 <style>
+#wanna-play:hover {
+  background-color: var(--btn-hover);
+}
+
 .custom-table {
-  
   width: 100%;
   border-collapse: collapse;
   background-color: var(--login-form-bg);
@@ -154,12 +161,12 @@ tr {
 }
 
 p {
-    max-width: 800px;
-    word-wrap: break-word;
+  max-width: 800px;
+  word-wrap: break-word;
 }
 .log-out {
   padding: 5px;
-  background-color: rgb(255, 0, 21);
+  background-color: rgb(255, 25, 25);
   color: white;
   font-size: 1.5em;
   border-style: none;

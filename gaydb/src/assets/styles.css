@@ -19,17 +19,21 @@
     --func-input-bg: #7d3278;
     --login-form-bg: #552152;
     --btn-hover: #891f82;
+    --disabled-btn: white;
 }
+
 body{
     background: var(--pozadi);
     color: var(--seda)
 }
+
 .nadpis {
     margin: 10px;
     font-size: 40px;
     text-align: center;
     color: var(--bila-soft)
 }
+
 .pod-nadpis {
     margin: 10px;
     font-size: 36px;
@@ -40,6 +44,7 @@ body{
 h1 {
     font-size: 32px;
 }
+
 .text_input {
     color: white;
     width: 100%;
@@ -52,6 +57,7 @@ h1 {
     background-color: var(--func-input-bg);
     outline: none;
 }
+
 .btn {
     color: white;
     width: 5em;
@@ -66,6 +72,21 @@ h1 {
     outline: none;
     align-self: center;
 }
+
+.disabled-button {
+    color: black;
+    width: 5em;
+    font-size: 15px;
+    padding: 5px;
+    height: 2.5em;
+    border-radius: 5px;
+    background-color: var(--disabled-btn);
+    border-style: solid;
+    border: none;
+    outline: none;
+    align-self: center;
+}
+
 .btn:hover {
     background-color: var(--btn-hover);
 }

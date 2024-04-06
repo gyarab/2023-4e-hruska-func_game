@@ -13,11 +13,15 @@ export default {
             gameData: null,
             flip: null,
             targets_num: 0, //pokud trefím, tak se číslo nyvýší
-            myname: null,
-            ready: null,
-            game_ready: null,
-            my_score: 0,
-            his_score: 0,
+            gameLogic: {
+                myscore: 0,
+                hisscore: 0,
+                ready: null,
+                gameready: null,
+                myname: null,
+                hisname: null,
+                myturn: null,
+            }
         }
     },
     mounted() {
@@ -31,11 +35,13 @@ export default {
         //console.log(`[TARGETS] ${targets}`)
         if (whoFirst == "not you"){ //nezačínáš, tak flipuješ
             this.flip = true
+            this.gameLogic.myturn = false
         }else{
             this.flip = false
+            this.gameLogic.myturn = true
         }
         const myName = this.gameData["nickname"]
-        this.myname = myName
+        this.gameLogic.myname = myName
         this.circles = this.gameData["circles"]
 
         if (gameId === null){
@@ -48,7 +54,7 @@ export default {
         this.ws.onmessage = (event) =>{ //jde o data, která přišla socketem
             //print(event.data)
             if (event.data == "ready to play"){
-                this.game_ready = true
+                this.gameLogic.gameready = true
             }else{
                 let a = JSON.parse(event.data)
                 console.log(`[RECEIVED DATA] ${a}`)
@@ -67,6 +73,7 @@ export default {
                         this.clean_canvas()
                         this.draw_graph(func, selected, color)
                         this.draw_circles()
+                        this.flip_my_turn()
                     }
                     else if(username == myName){ //==
                         console.log("[DEBUGINGAME] equal names")
@@ -74,6 +81,7 @@ export default {
                         this.clean_canvas()
                         this.draw_graph(func, selected, color)
                         this.draw_circles()
+                        this.flip_my_turn()
                     }
                 } else {
                     console.log("error")
@@ -92,6 +100,9 @@ export default {
     }, 
     methods: {
         sendMessage() {
+            if (!this.gameLogic.myturn || !this.function_input || !this.selectedOption){
+                console.log(`[PROBLEM] worng input data`)
+            }
             if (this.selectedOption && this.function_input) {
                 const gameId = this.gameData["data"]
                 const myName = this.gameData["nickname"]
@@ -281,7 +292,7 @@ export default {
                 }else if (this.selectedOption == "bottom"){ //low
                     y -= 2
                 }
-                let  m = target_top
+                let m = target_top
                 target_top = -target_bottom
                 target_bottom = -m
             } else {
@@ -294,18 +305,20 @@ export default {
             //console.log(`[DEBUG in hit] y: ${y}, target_bottom: ${target_bottom}, target_top: ${target_top}`)
             if (y > target_bottom && y < target_top){
                 //console.log(`[well yeah hit] [${12}, ${y}]`)
-                if (this.myname == this.gameData["nickname"]){
-                    this.my_score += 1
-                } else if (this.myname != this.gameData["nickname"]) {
-                    this.his_score += 1 
+                console.log(`[DEBUG NAMES] myname: ${this.gameLogic.myname} hreceived name: ${this.gameData["nickname"]}`)
+                if (this.gameLogic.myname == this.gameData["nickname"]){
+                    this.gameLogic.myscore += 1
+                } else if (this.gameLogic.myname != this.gameData["nickname"]) {
+                    this.gameLogic.hisscore += 1 
                 }
+                console.log(`[SCOREBOARD] my score: ${this.gameLogic.myscore}, his score: ${this.gameLogic.hisscore}`)
                 return true
             }
             return false
         },
         check_win(){
-            if (this.my_score == 2 || this.his_score == 2){
-                if (this.my_score > this.his_score){
+            if (this.gameLogic.myscore == 2 || this.gameLogic.hisscore == 2){
+                if (this.gameLogic.myscore > this.gameLogic.hisscore){
                     console.log("u won")
                     this.we_won(localStorage.getItem("username"))
                     
@@ -322,7 +335,7 @@ export default {
         },
         ready_to_play(){
             this.ws.send(JSON.stringify({"message": "ready fregy", "gameId": this.gameData["data"]}))
-            this.ready = true
+            this.gameLogic.ready = true
         },
         we_lose(user){
             this.ws.send(JSON.stringify({"message": "endgame", "gameId": this.gameData["data"], "user": user}))
@@ -331,6 +344,9 @@ export default {
         we_won(user){
             this.ws.send(JSON.stringify({"message": "endgame", "gameId": this.gameData["data"], "user": user}))
             this.ws.close()
+        },
+        flip_my_turn(){
+            this.gameLogic.myturn = !this.gameLogic.myturn
         }
     }
 }
@@ -339,7 +355,7 @@ export default {
     <div class="kontejner">
         <form class="func_input">
             <div class="radio_kontejner">
-            <fieldset v-if="game_ready" id="radios">
+            <fieldset v-if="this.gameLogic.gameready" id="radios">
                 <input type="text" v-model="function_input" placeholder="Insert function"
                     v-bind:class="{wrong_input: !selectedOption, text_input: selectedOption}">
                 <legend>Insert func and choose startig point:</legend>
@@ -361,23 +377,28 @@ export default {
                             Bottom
                         </label>
                     </div>
-                    <!--<button v-on:click="draw_graph()" class="btn" type="button">submit</button>-->
-                    <button v-on:click="sendMessage()" class="btn" type="button">send message</button>
+                    <button v-on:click="sendMessage()" :disabled="!this.gameLogic.myturn" 
+                    v-bind:class="{'disabled-button': !this.gameLogic.myturn, 'btn': this.gameLogic.myturn}" type="button">shoot</button>
                 </fieldset>
             </div>
         </form>
-        <div v-if="ready" class="scoreboard">
+        <div v-if="this.gameLogic.ready" class="scoreboard">
             <div>
                 <h2>Moje statistiky:</h2>
                 <br>
-                {{ this.myname }}
-                {{ this.my_score }}
+                {{ this.gameLogic.myname }}
+                {{ this.gameLogic.myscore }}
+            </div>
+            <div>
+                <h2>Status hry</h2>
+                
+                {{ this.gameLogic.myturn }}
             </div>
             <div>
                 <h2>Statistiky soupeře:</h2>
                 <br>
                 {{ this.username }}
-                {{ this.his_score }}
+                {{ this.gameLogic.hisscore }}
             </div>
         </div>
         <div v-else>
@@ -392,10 +413,14 @@ export default {
     </div>
 </template>
 <style>
+
 .scoreboard {
     display: flex;
     justify-content: space-between;
     width: 75%;
+}
+.opponents_turn{
+    border: red solid 2px
 }
 
 .wrong_input{
