@@ -70,8 +70,8 @@ export default {
                         let color = "blue"
                         this.clean_canvas()
                         this.draw_circles()
-                        this.draw_graph(func, selected, color)
                         this.flip_my_turn()
+                        this.draw_graph(func, selected, color)
                     }
                     else if(this.username == myName){ 
                         //console.log("this.username == myName",this.username, this.gameLogic.myname, this.gameLogic.hisname)
@@ -112,7 +112,6 @@ export default {
             }
         },        
         draw_graph(func, selected, color) {
-            //var - video assistant ref
             let w = this.canvas.width;
             let h = this.canvas.height;
             this.ctx.lineWidth = 3;
@@ -125,6 +124,7 @@ export default {
             }
             this.ctx.strokeStyle = color;
             this.ctx.beginPath(); //kreslení grafu
+            let naboural = false
             for (let i = 0; i < w; i += 0.1) {
                 let y = eval(this.calculate_y(i, func))
                 let [grafX, grafY] = this.konvertor(i * (w / 12), y * (h / 8), selected);
@@ -136,19 +136,23 @@ export default {
                 }
                 */
                 console.log("koule")
-                if (this.circle_collision(grafX, grafY)){ // i,y --> logic-asi, //grafx, grafy --> canvasove
+                if (this.circle_collision(grafX, grafY, color=='blue')){ // i,y --> logic-asi, //grafx, grafy --> canvasove
                     console.log(`[CIRCLE COLLIDED] in x: ${grafX}, y: ${grafY}`)
+                    naboural = true
                     break;
                 } 
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY); 
-                if (!this.circle_collision(grafX, grafY) && !this.collided(y) && this.hit_target(func)){
-                    this.targets_num += 1 //score
-                    this.draw_left_and_right_canvas(this.ctxL, this.ctxR)
-                }
+
+            }
+
+            this.ctx.stroke();
+
+            if (!naboural && this.hit_target(func)){
+                this.targets_num += 1 //score
+                this.draw_left_and_right_canvas(this.ctxL, this.ctxR)
             }
             
-            this.ctx.stroke();
             if (color == "blue"){
                 this.ctx.translate(this.canvas.width, 0);
                 this.ctx.scale(-1,1)
@@ -248,28 +252,28 @@ export default {
                 this.ctx.fill();
             }
             if (this.canvas_circles[0][2] == 0) {
-                this.transfer_circle_cords()
+                this.canvas_circles = this.transfer_circle_cords(this.circles)
                 console.log(this.canvas_circles)
             }
         },
-        transfer_circle_cords(){
+        transfer_circle_cords(circles){
             let magic_num = this.canvas.height/8 //jde o velikost jedné kostičky
+            let readyfregys = [[0,0,0],[0,0,0],[0,0,0]]
             for (let i = 0; i < 3; i++){
-                this.canvas_circles[i][0] = this.canvas.width / 2 + this.circles[i][0] * magic_num
-                this.canvas_circles[i][1] = this.canvas.height / 2 + this.circles[i][1] * magic_num
-                this.canvas_circles[i][2] = this.circles[i][2]  * magic_num
+                readyfregys[i][0] = this.canvas.width / 2 + circles[i][0] * magic_num
+                readyfregys[i][1] = this.canvas.height / 2 + circles[i][1] * magic_num
+                readyfregys[i][2] = circles[i][2]  * magic_num
                 //canvas pixels 
             }
+            return readyfregys
         },
         
-        circle_collision(x, y) {
-            //let readyfregy = [[0,0,0],[0,0,0],[0,0,0]]
-            if (!this.myturn) {
-                realflipcircs = this.transfer_circle_cords(this.flip_circles(this.circles))
-                this.canvas_circles = realflipcircs
-            } else {
-                realflipcircs = this.canvas_circles
-            }
+        circle_collision(x, y, flip_it) {
+            let circs = this.canvas_circles
+            if (flip_it){
+                circs = this.transfer_circle_cords(this.flip_circles(this.circles))
+            } 
+
             let magic_num = this.canvas.height / 8
             
             if (x < 2*magic_num || x > 10*magic_num){
@@ -277,7 +281,7 @@ export default {
             }
             
             for (let i = 0; i < 3; i++) {
-                if (Math.sqrt(Math.pow(x - realflipcircs[i][0], 2) + Math.pow(y - realflipcircs[i][1], 2)) < realflipcircs[i][2]) {
+                if (Math.sqrt(Math.pow(x - circs[i][0], 2) + Math.pow(y - circs[i][1], 2)) < circs[i][2]) {
                     return true;
                 }
             }
