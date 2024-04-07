@@ -5,7 +5,7 @@ https://www.python.org/downloads/windows/
 ```
 Pokud se vám neukáže verze pythonu po napsání příkazu python do terminálu, tak jste udělali při instalaci chybu
 ```sh
-python
+$ python
 ```
 > Output např. Python 3.9.13 
 
@@ -34,16 +34,16 @@ $ python -m venv myvenv
 ```
 Aktivace
 ```sh
-cd myvenv/Scripts/
+$ cd myvenv/Scripts/
 ```
 ```sh
 $ . activate
 ```
 ```sh
-cd ..
+$ cd ..
 ```
 ```sh
-cd ..
+$ cd ..
 ```
 Stažení requirements.txt
 ```sh
@@ -51,5 +51,5 @@ $ pip install -r requirements.txt
 ```
 Zapnutí backendu
 ```sh
-uvicorn main:app --reload --port 8000
+$ uvicorn main:app --reload --port 8000
 ```
