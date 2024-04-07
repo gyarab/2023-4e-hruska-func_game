@@ -69,7 +69,7 @@ async def ucet(req: Request):
     else:
         winrate = info.number_of_wins/info.number_of_games*100
         
-    return {"jmeno": info.jmeno, "games played": info.number_of_games, "winrate (%)": winrate} #....
+    return {"jméno": info.jmeno, "počet her": info.number_of_games, "winrate (%)": winrate} #....
 
 
 groups = {}
@@ -168,12 +168,6 @@ async def handle_websocket(websocket: WebSocket):
                 )
                 del circles[free_lobby_id]
                 del spots_to_hit[free_lobby_id]
-            """
-            else:
-                print("[WHERE] last else")
-                await websocket.send_json({"message": "chyba", "data" : "něco se posralo"})
-                websocket.close(reason="conn v /graf")
-            """
 
     except WebSocketDisconnect:
         print("in websocket disconnect")

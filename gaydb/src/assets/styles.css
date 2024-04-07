@@ -152,7 +152,7 @@ label {
 .kontejner {
     display: flex;
     flex-direction: column;
-    gap: 1.5em;
+    gap: 1em;
     align-items: center;
     height: 85vh;
     width: 100%;
@@ -166,4 +166,19 @@ label {
     align-items: center;
     height: 60vh;
     width: 65%;
+}
+
+.home_kontejner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 1em;
+    padding: 20px;
+}
+
+.text {
+    padding: 10px;
+    font-size: 1.3em;
 }

@@ -1,12 +1,28 @@
 <template>
-  <div id="home_kontejner">
-    <h1 class="nadpis">This is prematch lobby</h1>
+  <div class="home_kontejner">
+    <h1 class="nadpis">Hrát</h1>
     <div id="test_server">
-      <h1>Enter Lobby</h1>
-      <input class="text_input" style="width: 50%" v-model="username_input" form="text" placeholder="zadejte nickname" />
+      <h1 style="color: white;">Zadejte svojí přezdívku</h1>
+      <input class="text_input" style="width: 50%" v-model="username_input" form="text" placeholder="zadejte přezdívku"/>
       <button id="activator" v-on:click="sendMessage">HRÁT ONLINE</button>
-      <li v-if="server_response">Server response: {{ server_response }}</li>
     </div>
+  </div>
+  <div class="kontejner">
+    <div class="items">
+        <h2 class="nadpisus" style="margin:0.3em; color: white">Jak hrát</h2>
+        <p class="text">
+          Cíl hry je velmi jednoduchý, ale na začátek je potřeba pochopit pár základních principů. Pro oba hráče platí, že vždy střílí z levé strany.
+          Hráč má na výběr ze tří možností, odkud se začne jeho graf zobrazovat (top, mid, bottom). Pokud není hráč na tahu, tak musí vyčkat na soupeřův tah
+          , který se zobrazí v modré barvě.
+        </p>
+        <img src="../assets/fkce.svg">
+        <h2 class="nadpisus" style="margin:0.3em; color: white">Cíl hry</h2>
+        <p class="text">
+          Hráč má za úkol pomocí předpisu funkce trefit zelený obdélník na pravé straně. Aby to ale neměl tak jednoduché, tak se jeho graf musí vměstnat
+          do požadované výšky, kterou graf nemůže překročit, a zároveň obstřelit černé kruhy uprostře hracího pole. První, který dosáhne dvou bodů vyhrává. 
+          Hráč má k dispozici konstatní, lineární, kvadratické a exponencíální funkce. Hodně štěstí
+        </p>
+      </div>
   </div>
 </template>
 <style scoped>
@@ -19,19 +35,8 @@
   width: 60%;
   border-radius: 20px;
   gap: 0.5em;
-  margin-top: 25px;
   padding: 10px;
   font-size: 2em;
-}
-
-#home_kontejner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  gap: 2em;
-  padding: 20px;
 }
 
 #activator {
@@ -52,7 +57,6 @@
 export default {
   data() {
     return {
-      server_response: "",
       username_input: "",
       ws: null,
     }
@@ -65,14 +69,6 @@ export default {
     }
     this.my_on_message()
   },
-  /*
-  beforeRouteLeave() {
-    console.log("in before destroy")
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.close();
-    }
-  }
-  */
   methods: {
     sendMessage(event) {
       if (this.ws.readyState === WebSocket.OPEN) {

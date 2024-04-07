@@ -96,9 +96,13 @@ export default {
   border-radius: 10px;
 }
 
-.custom-table th,
+.custom-table th {
+  padding: 8px;
+}
+
 .custom-table td {
   padding: 8px;
+  font-size: 1.7em;
 }
 
 .custom-table th {

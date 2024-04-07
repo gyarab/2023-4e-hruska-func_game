@@ -7,7 +7,7 @@
         <p class="text">
           Jde o studentský projekt naprogramovaný ve čtvrtém ročníku Gymnázia Arabská. Projekt je zaměřen na využití
           grafů v online hře.
-          Projekt využívá javascript pro vykreslování objektů, respektive křivek, na canvas, což je pole pixelů, které
+          Projekt využívá javascript pro vykreslování objektů, respektive křivek na canvas, což je pole pixelů, které
           se mění dle zadaných vstupních dat.
         </p>
         <p class="text">
@@ -20,8 +20,8 @@
       </div>
       <div id="studentsky-projekt">
         <p class="text">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores harum dolores officiis nobis? Animi dolor iure et
-          in veritatis corporis qui eligendi adipisci assumenda maxime, recusandae ducimus quia. Eveniet, eaque!
+          Studentský projekt je zárověň maturitní prací. V projektu jsem si poprvé vyzkoušel pracovat sám na větším projektu obsahujícím databázi,
+          autentifikaci přes JWT tokeny, frontend ve vue.js, použití fastApi web socketů na vzájemnou komunikaci uživatelů. 
         </p>
       </div>
     </div>
@@ -53,11 +53,6 @@ img {
   display: flex;
   align-items: center;
   flex-direction: column;
-}
-
-.text {
-  padding: 10px;
-  font-size: 1.2em;
 }
 
 .nadpisus {

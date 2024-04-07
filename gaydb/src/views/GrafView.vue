@@ -377,7 +377,7 @@ export default {
             return [[circs[0][0], circs[0][1], circs[0][2]],[-circs[1][0], circs[1][1], circs[1][2]],[-circs[2][0],circs[2][1],circs[2][2]]]
         },
         evalExpr(expression) {
-            if (!expression) throw "bruhh"; // Check for empty string
+            if (!expression) return ""; // Check for empty string
 
             const length = expression.length;
 
@@ -433,7 +433,7 @@ export default {
                 if (expression == "x" || /^[0-9]*(?:\.[0-9]+)?$/.test(expression)) {
                     return expression;
                 } else {
-                    throw "bruh";
+                    return "";
                 }
             }
 
