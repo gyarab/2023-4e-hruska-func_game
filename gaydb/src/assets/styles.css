@@ -152,7 +152,7 @@ label {
 .kontejner {
     display: flex;
     flex-direction: column;
-    gap: 2em;
+    gap: 1.5em;
     align-items: center;
     height: 85vh;
     width: 100%;

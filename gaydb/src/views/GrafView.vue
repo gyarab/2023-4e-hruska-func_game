@@ -22,6 +22,7 @@ export default {
                 myname: null, //myname ve hře
                 hisname: null, //jeho jméno ve hře
                 myturn: null, //jsem na řadě
+                statushry: null,
             }
         }
     },
@@ -35,9 +36,12 @@ export default {
         if (whoFirst == "not you"){ //nezačínáš, tak flipuješ
             this.flip = true
             this.gameLogic.myturn = false
+            this.statushry = "soupeřův tah"
         }else{
             this.flip = false
             this.gameLogic.myturn = true
+            this.statushry = "jsi na tahu"
+
         }
         const myName = this.gameData["nickname"]
         this.gameLogic.myname = myName
@@ -126,21 +130,21 @@ export default {
             this.ctx.beginPath(); //kreslení grafu
             let naboural = false
             for (let i = 0; i < w; i += 0.1) {
-                let y = eval(this.calculate_y(i, func))
+                let y = eval(this.evalExpr(this.calculate_y(i, func)))
                 let [grafX, grafY] = this.konvertor(i * (w / 12), y * (h / 8), selected);
-                /*
-                if (this.collided(y)){
-                    console.log(`[Y COLLIDED] x: ${i}, y: ${y}`)
-                    this.ctx.stroke();
+
+                if (this.collided(grafX, grafY)){
+                    //console.log(`[Y COLLIDED] x: ${grafX}, y: ${grafY}`)
+                    naboural = true
                     break;
                 }
-                */
-                console.log("koule")
+
                 if (this.circle_collision(grafX, grafY, color=='blue')){ // i,y --> logic-asi, //grafx, grafy --> canvasove
                     console.log(`[CIRCLE COLLIDED] in x: ${grafX}, y: ${grafY}`)
                     naboural = true
                     break;
                 } 
+
                 this.ctx.lineTo(grafX, grafY);
                 this.ctx.moveTo(grafX, grafY); 
 
@@ -194,10 +198,9 @@ export default {
             }
             return [x2, y2];
         },
-        calculate_y(x, func) { //FIXME;
+        calculate_y(x, func) {
             const replaced = func.replaceAll('x', x);
             return replaced;
-            //https://mathjs.org/docs/reference/functions.html
         },
         get_lowering_gradient(s){
             if (s == "top") return -2 //start +h/4, +w/4
@@ -236,8 +239,12 @@ export default {
             ctxs[1].fillRect(0, h / 4 * (this.gameData["targets"][this.targets_num] - 1), w, h / 4)
             ctxs[0].fillRect(0, h / 4 * (4 - (this.gameData["targets"][this.targets_num])), w, h / 4)
         },
-        collided(y){
+        collided(x ,y){
+            if (x < 0 || x > this.canvas.width) {
+                return false
+            }
             if (y > this.canvas.height || y < -this.canvas.height/2){
+                console.log(this.konvertor(x, y))
                 return true;
             }
             return false
@@ -369,6 +376,84 @@ export default {
         flip_circles(circs){
             return [[circs[0][0], circs[0][1], circs[0][2]],[-circs[1][0], circs[1][1], circs[1][2]],[-circs[2][0],circs[2][1],circs[2][2]]]
         },
+        evalExpr(expression) {
+            if (!expression) throw "bruhh"; // Check for empty string
+
+            const length = expression.length;
+
+            // Check for brackets
+            let bracketCount = 0;
+            if (expression[0] === "(") {
+                for (let i = 0; i < length - 1; i++) {
+                const char = expression[i];
+                if (char === "(") bracketCount++;
+                else if (char === ")") bracketCount--;
+                if (bracketCount === 0) break;
+                }
+            }
+            if (bracketCount === 1) {
+                return "(" + evalExpr(expression.substring(1, length - 2)) + ")";
+            }
+
+            // Find split point
+            let highestType = 0;
+            let index = -1;
+            bracketCount = 0;
+            for (let i = 0; i < length; i++) {
+                const char = expression[i];
+                let value = -1;
+                switch (char) {
+                case "(":
+                    bracketCount++;
+                    break;
+                case ")":
+                    bracketCount--;
+                    break;
+                case "^":
+                    value = 1;
+                    break;
+                case "*":
+                case "/":
+                    value = 2;
+                    break;
+                case "+":
+                case "-":
+                    value = 3;
+                    break;
+                }
+                if (bracketCount > 0) continue;
+                if (value >= highestType) {
+                    highestType = value;
+                    index = i;
+                }
+            }
+
+            // Handle primitives
+            if (index === -1) {
+                if (expression == "x" || /^[0-9]*(?:\.[0-9]+)?$/.test(expression)) {
+                    return expression;
+                } else {
+                    throw "bruh";
+                }
+            }
+
+            // Recurse into sub-expressions
+            const left = this.evalExpr(expression.substring(0, index));
+            const right = this.evalExpr(expression.substring(index + 1));
+            switch (expression[index]) {
+                case "^":
+                return "Math.pow(" + left + "," + right + ")";
+                case "*":
+                return left + "*" + right;
+                case "/":
+                return left + "/" + right;
+                case "+":
+                return left + "+" + right;
+                case "-":
+                return left + "-" + right;
+            }
+            throw "bruhh";
+        }
     }
 }
 </script>
@@ -379,7 +464,7 @@ export default {
             <fieldset v-if="this.gameLogic.gameready" id="radios">
                 <input type="text" v-model="function_input" placeholder="Insert function"
                     v-bind:class="{wrong_input: !selectedOption, text_input: selectedOption}">
-                <legend>Insert func and choose startig point:</legend>
+                <legend>Napište funkci a zvolte počátek:</legend>
                     <div id="singles">
                         <label>
                             <input type="radio" v-model="selectedOption" value="top"><br>
@@ -404,25 +489,22 @@ export default {
             </div>
         </form>
         <div v-if="this.gameLogic.ready" class="scoreboard">
-            <div>
-                <h2>Moje statistiky:</h2>
-                <br>
+            <div class="score">
+                <h3>Moje statistiky:</h3>
                 {{ this.gameLogic.myname }}
                 {{ this.gameLogic.myscore }}
             </div>
-            <div>
-                <h2>Status hry</h2>
-                
-                {{ this.gameLogic.myturn }}
+            <div class="score">
+                <h3>Status hry</h3>
+                {{ this.statushry }}
             </div>
-            <div>
-                <h2>Statistiky soupeře:</h2>
-                <br>
+            <div class="score">
+                <h3>Statistiky soupeře:</h3>
                 {{ this.gameLogic.hisname }}
                 {{ this.gameLogic.hisscore }}
             </div>
         </div>
-        <div v-else>
+        <div id="waitin-state" v-else>
             <h1>Čekání na protihráče...</h1>
             <button v-on:click="ready_to_play()" class="btn">READY</button>
         </div>
@@ -434,11 +516,25 @@ export default {
     </div>
 </template>
 <style>
+#waitin-state {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+    align-items: center;
+    justify-content: center;
+}
+
+.score {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    align-items: center;
+}
 
 .scoreboard {
     display: flex;
     justify-content: space-between;
-    width: 75%;
+    width: 70%;
 }
 .opponents_turn{
     border: red solid 2px
@@ -479,7 +575,7 @@ input {
 .graf_div {
     display: flex;
     flex-direction: row;
-    width: 80%;
+    width: 70%;
     border: solid 5px var(--graf-border)
 }
 #pravej_graf, #levej_graf {
